@@ -1,0 +1,10 @@
+Package: grt
+Version: 0.0-1
+Date: 2013-01-31
+Title: Functions for Analysis of Data with General Recognition Theory
+Author: Robert Hawkins <hawkrobe@indiana.edu>, Joe Houpt <jhoupt@indiana.edu>, Noah Silbert <noahsilbert@gmail.com>, Leslie Blaha <Leslie.Blaha@wpafb.af.mil>
+Maintainer: Joe Houpt <jhoupt@indiana.edu>
+Depends: R (>= 1.8.0)
+Description: This package contains a series of tools associated with General Recognition Theory.  
+License: GPL (>=2)
+iURL: http://r-project.org
