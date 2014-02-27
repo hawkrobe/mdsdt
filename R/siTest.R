@@ -54,7 +54,7 @@ mriTest <- function(x) {
     nA2B <- sum(x[B+2,])
     
     p.s <- (rB.sA1B + rB.sA2B)/(nA1B + nA2B)
-    statistic[B+2] <- ((rB.sA1B/nA1B - rB.sA2B/nA2B)/
+    statistic[B+2] <- ((rB.sA2B/nA2B - rB.sA1B/nA1B)/
                       sqrt(p.s*(1-p.s)*(1/nA1B+1/nA2B)) )
   }
   return(data.frame(stimulus=stimulus, statistic=statistic, 

@@ -1,3 +1,14 @@
+#' Checks whether the input is a valid confusion matrix
+#'
+#' @param x: four-by-four confusion matrix of counts of probabilities
+#' @return Boolean indicating whether input is valid
+#' @export
+#' @examples
+#' checkConfusionMatrix(matrix(c(3,1,1,4,3,3),3)) 
+#' checkConfusionMatrix(matrix(c(.5,.2,.2,.2,
+#'                               .2,.5,.1,.2,
+#'                               .1,.2,.5,.1,
+#'                               .2,.2,.3,.5), 4))
 checkConfusionMatrix <- function(x) {
   dimx <- dim(x)[1]
   if( dimx != dim(x)[2]){ 
