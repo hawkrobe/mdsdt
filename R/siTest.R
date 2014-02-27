@@ -17,6 +17,13 @@ siTest <- function(x) {
       p.value=1-pchisq(statistic, 1)) )
 }
 
+#' Tests marginal response invariance at both levels on each dimension
+#'
+#' @param x four-by-four confusion matrix 
+#' @return data frame containing z-scores and p-values for all four tests
+#' @export
+#' @examples
+#' mri_test(observerA)
 mriTest <- function(x) {
   if(!checkConfusionMatrix(x)) {
     return(FALSE)
