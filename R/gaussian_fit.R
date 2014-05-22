@@ -9,7 +9,8 @@ gaussian_fit <- function(freq) {
     return(FALSE)
   }
 
-  # Tolerance -- stops when new parameter values are less than delta away from old
+  # Tolerance -- stops when new parameter values are 
+  # less than delta away from old
   delta <- 1/10000; 
 
   # In principle, we could add constraints to our model, but 
@@ -72,7 +73,7 @@ gaussian_fit <- function(freq) {
   }
   
   # calculate log-like gradient and information matrix for first step
-  for (i in 1:4) {
+  for (i in 1:4){
     alpha = ps_old[xpar[i]]; # x mean
     kappa = ps_old[ypar[i]]; # y mean
     rho = ps_old[rpar[i]];
@@ -82,16 +83,20 @@ gaussian_fit <- function(freq) {
     
   # log-likelihood gradient, information matrix
   for (i in 1:npar) {
-    cond = ((i-1) %% 4) + 1;
-    d[i] = sum(sum((freq[cond,]/prob[cond,])
-                   *v[cond,, ceiling(i/4)]));    
-    K = sum( freq[cond,]);#./sum( prob(cond,:) , 2 );
-    L = sum( v[cond,,ceiling(i/4)]   * v[cond,,ceiling(i/4)] / prob[cond,] , 2 ) -
-        sum( v[cond,,ceiling(i/4)], 2) * sum(v[cond,, ceiling(i/4)],2);#./sum(prob(cond,),2);
-    E[i,i] = -K*L; 
+    condi = ((i-1) %% 4) + 1;
+    d[i] = sum(sum((freq[condi,]/prob[condi,])
+                   *v[condi,, ceiling(i/4)]));   
+    for (j in 1:npar) {
+      condj = ((j-1) %% 4) + 1;
+      if (condi == condj) {
+        K = sum( freq[condi,]);#/sum(prob[condi,]);
+        L = sum( v[condi,,ceiling(i/4)]   * v[condi,,ceiling(j/4)] / prob[condi,]) -
+            sum( v[condi,,ceiling(i/4)]) * sum(v[condi,, ceiling(j/4)]);#./sum(prob(condi,),2);
+        E[i,j] = -K*L; 
+      }
+    }
   }
-  
-  print(E)
+    
   Ei = solve(E, diag(npar));
   
   ps_new = ps_old - Ei %*% d;
@@ -99,15 +104,10 @@ gaussian_fit <- function(freq) {
   # iterate!
   
   it = 1;
-  
   df = abs( ps_new - ps_old ) / abs(ps_new);
-  
   dfp_new = t(df) %*% df;
-  
   dfp_old = dfp_new;
-  
   print(c(it))
-  
   while (dfp_new > delta) {
     
     ps_old = ps_new;
@@ -124,15 +124,20 @@ gaussian_fit <- function(freq) {
    
     # log-likelihood gradient, information matrix
     for (i in 1:npar) {
-      cond = ((i - 1) %% 4) + 1;
-      d[i] = sum(sum((freq[cond,]/prob[cond,])
-                     *v[cond,, ceiling(i/4)]));    
-      K = sum( freq[cond,]);#./sum( prob(cond,:) , 2 );
-      L = sum( v[cond,,ceiling(i/4)]   * v[cond,,ceiling(i/4)] / prob[cond,] , 2 ) -
-        sum( v[cond,,ceiling(i/4)], 2) * sum(v[cond,, ceiling(i/4)],2);#./sum(prob(cond,),2);
-      E[i,i] = -K*L; 
+      condi = ((i-1) %% 4) + 1;
+      d[i] = sum(sum((freq[condi,]/prob[condi,])
+                     *v[condi,, ceiling(i/4)]));   
+      for (j in 1:npar) {
+        condj = ((j-1) %% 4) + 1;
+        if (condi == condj) {
+          K = sum( freq[condi,]);#/sum(prob[condi,]);
+          L = sum( v[condi,,ceiling(i/4)]   * v[condi,,ceiling(j/4)] / prob[condi,]) -
+            sum( v[condi,,ceiling(i/4)]) * sum(v[condi,, ceiling(j/4)]);#./sum(prob(condi,),2);
+          E[i,j] = -K*L; 
+        }
+      }
     }
-        
+    
     Ei = solve(E, diag(npar));
     
     if (dfp_new > dfp_old) { #w halving procedure
