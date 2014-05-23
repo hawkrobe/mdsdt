@@ -15,4 +15,5 @@ iURL: http://r-project.org
 Collate:
     'checkConfusionMatrix.R'
     'siTest.R'
+    'gaussian_fit.R'
     'grt-data.R'

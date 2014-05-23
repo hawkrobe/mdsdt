@@ -1,9 +1,16 @@
-#' Uses Newton-Raphson gradient descent to fit a Gaussian model 
+#' Fit a bivariate Gaussian model for each response distribution using Newton-Raphson gradient descent
 #'
-#' @param freq 4x4 confusion matrix (containing counts). Assumes row/col order: aa, ab, ba, bb.
-#' @return data frame containing z-scores and p-values for all four tests
+#' @param freq 4x4 confusion matrix containing counts. (Assumes row/col order: aa, ab, ba, bb).
+#' @return List containing the following elements:
+#'  \item{parameters}{The fitted means and correlations for all 4 response distributions}
+#'  \item{prob}{The predicted response probabilities according to the fit}
+#'  \item{info_mat}{The information matrix (inverse of Fisher Information matrix) for all parameters}
+#'  \item{nll}{The negative log likelihood}
+#'  \item{aic}{Akaike information criterion, for model comparison}
+#'  \item{bic}{Bayesian information criterion, for model comparison}
+#'  \item{icomp}{Bozdogan's information complexity (ICOMP), for model comparison}
+#' @examples gaussian_fit(observerB)
 #' @export
-#' @examples
 gaussian_fit <- function(freq) {
   if(!checkConfusionMatrix(freq)) {
     return(FALSE)
@@ -153,7 +160,7 @@ gaussian_fit <- function(freq) {
     print(dfp_new)
   }
   
-  print(ps_new)
+  # calculate fit statistics and put them in output structure
   parameters <- data.frame(aa = c(ps_new[1],ps_new[5],ps_new[9]),
                            ab = c(ps_new[2],ps_new[6],ps_new[10]),
                            ba = c(ps_new[3],ps_new[7],ps_new[11]),
@@ -181,19 +188,6 @@ gaussian_fit <- function(freq) {
                     aic = aic,
                     bic = bic,
                     icomp = icomp))
-  
-
-#   # put information matrix in the output structure
-#   outfit.M(:,:,m) = zeros(12);
-#   infoM = (-E)\eye(npar);
-#   outfit.M(1:npar,1:npar,m) = infoM;
-#   
-#   # for calculating log-likelihood, AIC, BIC
-#   
-#   # put fitted probabilities in output structure
-#   outfit.pr(:,:,m) = prob;
-#   
-#   # calculate fit statistics and put them in output structure
 }
 
 # calculate predicted response probabilities for the given stimulus
