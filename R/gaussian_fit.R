@@ -154,29 +154,35 @@ gaussian_fit <- function(freq) {
   }
   
   print(ps_new)
-  # put fitted parameters into the output structure
+  parameters <- data.frame(aa = c(ps_new[1],ps_new[5],ps_new[9]),
+                           ab = c(ps_new[2],ps_new[6],ps_new[10]),
+                           ba = c(ps_new[3],ps_new[7],ps_new[11]),
+                           bb = c(ps_new[4],ps_new[8],ps_new[12]));
   
-#   outfit.p(1,m) = ps_new(1);
-#   outfit.p(2,m) = ps_new(2);
-#   outfit.p(3,m) = ps_new(3);
-#   outfit.p(4,m) = ps_new(4);
-#   
-#   outfit.p(5,m) = ps_new(nx+1);
-#   outfit.p(6,m) = ps_new(nx+2);
-#   outfit.p(7,m) = ps_new(nx+3);
-#   outfit.p(8,m) = ps_new(nx+4);
-#   
-#   outfit.p(9,m) = ps_new(nx+ny+1);
-#   
-#   offset = 0+mods(m,3)==0;
-#   outfit.p(10,m) = ps_new(nx+ny+offset+1);
-#   
-#   offset = sum(mods(m,3:4)==0);
-#   outfit.p(11,m) = ps_new(nx+ny+offset+1);
-#   
-#   offset = sum(mods(m,3:5)==0);
-#   outfit.p(12,m) = ps_new(nx+ny+offset+1);
-#   
+  for (i in 1:4) {
+    alpha = ps_new[xpar[i]]; # x mean
+    kappa = ps_new[ypar[i]]; # y mean
+    rho = ps_new[rpar[i]];
+    prob[i,] = prcalc(c(alpha, kappa), matrix(data = c(1, rho, rho, 1), nrow = 2, ncol = 2));
+  }  
+  
+  info_mat <- -solve(E, diag(npar));
+  loglike = sum(sum(freq * log(prob)));
+  nll = -loglike;
+  aic = 2*npar - 2*loglike;
+  bic = npar*log(sum(freq)) - 2*loglike;
+  icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
+  
+
+  return(list(parameters = parameters,
+                    prob = prob,
+                    info_mat = info_mat,
+                    nll = nll,
+                    aic = aic,
+                    bic = bic,
+                    icomp = icomp))
+  
+
 #   # put information matrix in the output structure
 #   outfit.M(:,:,m) = zeros(12);
 #   infoM = (-E)\eye(npar);
@@ -184,42 +190,10 @@ gaussian_fit <- function(freq) {
 #   
 #   # for calculating log-likelihood, AIC, BIC
 #   
-#   alpha = ps_new(xpar(1)); # x mean, stim aa
-#   kappa = ps_new(ypar(1)); # y mean, stim aa
-#   rho = ps_new(rpar(1));
-#   
-#   prob(1,:) = prcalc([alpha kappa],eye(2) + [0 rho; rho 0]);
-#   
-#   alpha = ps_new(xpar(2));
-#   kappa = ps_new(ypar(2)); # y mean, stim ab
-#   offset = 0+[mods(m,3)==0];
-#   rho = ps_new(rpar(offset+1));
-#   
-#   prob(2,:) = prcalc([alpha kappa],eye(2) + [0 rho; rho 0]);
-#   
-#   alpha = ps_new(xpar(3)); # x mean, stim ba
-#   kappa = ps_new(ypar(3)); # y mean, stim ba
-#   offset = sum(mods(m,3:4)==0);
-#   rho = ps_new(rpar(offset+1));
-#   
-#   prob(3,:) = prcalc([alpha kappa],eye(2) + [0 rho; rho 0]);
-#   
-#   alpha = ps_new(xpar(4)); # x mean, stim bb
-#   kappa = ps_new(ypar(4)); # y mean, stim bb
-#   offset = sum(mods(m,3:5)==0);
-#   rho = ps_new(rpar(offset+1));
-#   
-#   prob(4,:) = prcalc([alpha kappa],eye(2) + [0 rho; rho 0]);
-#   
 #   # put fitted probabilities in output structure
 #   outfit.pr(:,:,m) = prob;
 #   
 #   # calculate fit statistics and put them in output structure
-#   loglike = sum(sum(freq.*log(prob)));
-#   outfit.nll(m) = -loglike;
-#   outfit.aic(m) = 2*npar - 2*loglike;
-#   outfit.bic(m) = npar*log(sum(sum(freq))) - 2*loglike;
-#   outfit.icomp(m) = -loglike + (npar/2)*log(trace(infoM)/npar)-.5*log(det(infoM));
 }
 
 # calculate predicted response probabilities for the given stimulus
