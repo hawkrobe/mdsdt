@@ -17,3 +17,4 @@ Collate:
     'siTest.R'
     'gaussian_fit.R'
     'grt-data.R'
+    'plot_fit.R'
