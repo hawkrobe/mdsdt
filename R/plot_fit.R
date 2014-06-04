@@ -1,6 +1,4 @@
-plot_fit <- function(fit_params) {
-  lab.x = 'x';
-  lab.y = 'y';
+plot_fit <- function(fit_params, xlab = 'x', ylab = 'y') {
   bin_width = .25;
   bounds = TRUE;
   marginals = TRUE;
@@ -9,7 +7,7 @@ plot_fit <- function(fit_params) {
   bivar_obj = bivar_norm(fit_params, bin_width);
   xlims = with(bivar_obj, c(x[1], x[length(x)]));
   ylims = with(bivar_obj, c(y[1], y[length(y)]));
-  level = c(.1, .1); # Determines which contour to plot
+  level = c(.12, .12); # Determines which contour to plot
   minax = -2.5;
   maxax = 4.5;
   plot.new();
@@ -18,15 +16,28 @@ plot_fit <- function(fit_params) {
   if (marginals || plot_fit) {
     for (i in 1:4) {
       cond = fit_params[[i]];
-      print(i);
       par(fig=c(0,1,0,1), pty='s', new=TRUE);
       contour(x = bivar_obj$x, y = bivar_obj$y, z = bivar_obj$dist[i,,], 
               levels = level, xlim = xlims, ylim = ylims,
-              drawlabels = FALSE, axes = FALSE);
+              drawlabels = FALSE, axes = FALSE,
+              xlab = xlab, ylab = ylab);
       points(cond[1], cond[2], pch = '+');
     }
     abline(h=0);
     abline(v=0);
+    margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
+    # Plot marginal on x dimension
+    for (i in 1:4) {
+      cond = fit_params[[i]];
+      xvar = bivar_obj$covars[i,1,1];
+      yvar = bivar_obj$covars[i,2,2];
+      margx[[i]] = (1 / sqrt(2*pi*xvar)) * exp(-.5*((bivar_obj$x-cond[1])/sqrt(xvar))^2);
+      margy[[i]] = (1 / sqrt(2*pi*yvar)) * exp(-.5*((bivar_obj$y-cond[2])/sqrt(yvar))^2);
+    }
+    plot(margx$aa);
+    plot(margx$ab, lty=2);
+    plot(margx$ba, lty=2);
+    plot(margx$bb);
   }
 }
 
