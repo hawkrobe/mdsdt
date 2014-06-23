@@ -1,6 +1,6 @@
 #' Fit a bivariate Gaussian model for each response distribution using Newton-Raphson gradient descent
 #'
-#' @param freq 4x4 confusion matrix containing counts. (Assumes row/col order: aa, ab, ba, bb).
+#' @param freq 4x4 confusion matrix containing counts. Assumes row/col order: aa, ab, ba, bb.
 #' @return List containing the following elements:
 #'  \item{parameters}{The fitted means and correlations for all 4 response distributions}
 #'  \item{prob}{The predicted response probabilities according to the fit}
@@ -11,21 +11,10 @@
 #'  \item{icomp}{Bozdogan's information complexity (ICOMP), for model comparison}
 #' @examples gaussian_fit(observerB)
 #' @export
-gaussian_fit <- function(freq) {
-  if(!checkConfusionMatrix(freq)) {
-    return(FALSE)
-  }
-
-  # Tolerance -- stops when new parameter values are 
-  # less than delta away from old
-  delta <- 1/10000; 
-
-  # In principle, we could add constraints to our model, but 
-  # we've only implemented the most general, unconstrained model so far
-  mods <- matrix(data = 0, nrow = 1, ncol = 7);
-  
-  # protection against zeros, which cause the algorithm to explode
-  freq = freq + 1;
+two_by_twofit.grt <- function(freq, mod) {
+  if(!checkConfusionMatrix(freq)) return(FALSE); # Make sure confusion matrix valid
+  delta <- 1/10000; # Tolerance
+  freq = freq + 1;   # protection against zeros, which cause the algorithm to explode
 
   # initialize weight for adjusting step size/preventing oscillation
   w = 1;
@@ -104,8 +93,7 @@ gaussian_fit <- function(freq) {
     }
   }
     
-  Ei = solve(E, diag(npar));
-  
+  Ei = solve(E, diag(npar));  
   ps_new = ps_old - Ei %*% d;
   
   # iterate!
@@ -114,12 +102,8 @@ gaussian_fit <- function(freq) {
   df = abs( ps_new - ps_old ) / abs(ps_new);
   dfp_new = t(df) %*% df;
   dfp_old = dfp_new;
-  print(c(it))
-  while (dfp_new > delta) {
-    
+  while (dfp_new > delta) {    
     ps_old = ps_new;
-    
-    # stimulus aa
     # calculate log-like gradient and information matrix for first step
     for (i in 1:4) {
       alpha = ps_old[xpar[i]]; # x mean
@@ -179,15 +163,40 @@ gaussian_fit <- function(freq) {
   aic = 2*npar - 2*loglike;
   bic = npar*log(sum(freq)) - 2*loglike;
   icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
-  
+  return(list(parameters = parameters, prob = prob, info_mat = info_mat, 
+              nll = nll, aic = aic, bic = bic, icomp = icomp))
+}
 
-  return(list(parameters = parameters,
-                    prob = prob,
-                    info_mat = info_mat,
-                    nll = nll,
-                    aic = aic,
-                    bic = bic,
-                    icomp = icomp))
+create_two_by_two_mod <- function(PS_x, PS_y ,PI) {
+  mod <- matrix(data = 0, nrow = 1, ncol = 7);
+  if (PS_x) mod[1] = 1;
+  if (PS_y) mod[2] = 1;
+  if (PI == 'all') {
+    mod[3:6] = rep(1,times=4);
+  } else { 
+    if (PI == 'same_rho') mod[7] = 1;
+  }
+  return(mod);
+}
+
+# In 2x2 case, it's typical to use a 4x4 frequency matrix w/ each row being a stim
+# and each col being the freqency of responding "aa", "ab", "ba", "bb", respectively, 
+# to that stim. Wickens' code for nxn case requires data in xtabs format.
+freq2xtabs <- function(freq) {
+  xdim = dim(freq)[1]; 
+  ydim = dim(freq)[2];
+  d = as.data.frame(matrix(rep(x=0,times=xdim*ydim*4), nrow = xdim*ydim, ncol = 4));
+  names(d) <- c("Stim", "L1", "L2", "x");
+  for (i in 1:4) {
+    for (j in 1:4) {
+      d[4*(i-1) + j,] = c(stimuli[i], floor((j+1) / 2), ((j-1) %% 2) + 1, freq[i,j]);
+    }
+  }
+  d$Stim <- ordered(d$Stim,levels=stimuli);
+  d$L1  <- ordered(d$L1);
+  d$L2 <- ordered(d$L2);
+  d$x <- as.numeric(d$x);
+  return(xtabs(x~L1+L2+Stim, d));
 }
 
 # calculate predicted response probabilities for the given stimulus

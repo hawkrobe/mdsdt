@@ -2,7 +2,7 @@
 #'
 #' @param A parameter list, as returned by gaussian_fit() 
 #' @export
-plot_fit <- function(fit_params) {
+plot.grt <- function(fit_params) {
   bin_width=.25;
   bivar_obj = bivar_norm(fit_params, bin_width);
   dist = bivar_obj$dist;
