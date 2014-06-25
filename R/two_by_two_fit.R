@@ -1,3 +1,5 @@
+require()
+
 #' Fit a bivariate Gaussian model for each response distribution using Newton-Raphson gradient descent
 #'
 #' @param freq 4x4 confusion matrix containing counts. Assumes row/col order: aa, ab, ba, bb.
@@ -11,16 +13,11 @@
 #'  \item{icomp}{Bozdogan's information complexity (ICOMP), for model comparison}
 #' @examples gaussian_fit(observerB)
 #' @export
-two_by_twofit.grt <- function(freq, mod) {
+two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   if(!checkConfusionMatrix(freq)) return(FALSE); # Make sure confusion matrix valid
   delta <- 1/10000; # Tolerance
   freq = freq + 1;   # protection against zeros, which cause the algorithm to explode
-
-  # initialize weight for adjusting step size/preventing oscillation
-  w = 1;
-
-  # This would index which model we're fitting if there was more than one row in mods
-  m = 1;
+  w = 1;  # initialize weight for adjusting step size/preventing oscillation
 
   # initialize predicted probability matrix
   nrow = dim(freq)[1];
@@ -32,70 +29,60 @@ two_by_twofit.grt <- function(freq, mod) {
     prob[i,] = freq[i,]/sum(freq[i,]);
   }
 
-  # initialize various scalars and arrays (assume no constraints)
+  # Get good initial estimates
+  initial = initial_point(prob, PS_x, PS_y, PI);
+  xpar=initial$xpar; ypar=initial$ypar; rpar=initial$rpar; 
+  ps_old=initial$ps_old; rows=initial$rows; npar = length(xpar)+length(ypar)+length(rpar);
   
-  # parameters in order:
-  # mu_x_** mu_y_** rho_**
-  # where ** = aa, ab, ba, bb
-  rows = matrix(data=0, nrow = 12, ncol = 4);
-  nx = 4;
-  ny = 4;
-  nr = 4;
-  xpar = 1:4;
-  ypar = nx + 1:4;
-  rpar = nx + ny + 1:4;
-  rows[xpar,] = diag(4);
-  rows[ypar,] = diag(4);
-  rows[rpar,] = diag(4);
-  rows = as.logical(rows);
-  npar = nx + ny + nr;
-  d = matrix(data = 0, nrow = npar, ncol = 1);
-  ps_old = matrix(data = 0, nrow= npar, ncol = 1);
-  v <- array(0, dim = c(4,4,3))
-  E = matrix(data = 0, nrow = npar, ncol = npar);
-  
-  for (i in 1:4) {
-    # initial estimates: means
-    ps_old[xpar[i]] = -qnorm(prob[i,1] + prob[i,2]);
-    ps_old[ypar[i]] = -qnorm(prob[i,1] + prob[i,3]);
-    # initial estimates: correlation
-    r = cos(pi/(1+sqrt((prob[i,4]*prob[i,1])/(prob[i,3]*prob[i,2]))));
-    if (r <= -1) {
-      r = -.95;
-    } else if (r >= 1) {
-      r = .95;
-    }
-    ps_old[rpar[i]] = r;
-  }
+  d = matrix(data = 0, nrow = npar, ncol = 1); # Store gradient at estimate
+  v <- array(0, dim = c(4,4,3)); # Store estimate variances
+  E = matrix(data = 0, nrow = npar, ncol = npar); # Store information matrix
   
   # calculate log-like gradient and information matrix for first step
   for (i in 1:4){
-    alpha = ps_old[xpar[i]]; # x mean
-    kappa = ps_old[ypar[i]]; # y mean
-    rho = ps_old[rpar[i]];
+    # Bookkeeping
+    x_i <- if(PS_x) ceiling(i/2) else i;
+    alpha = ps_old[xpar[x_i]];
+    y_i <- if(PS_y) ceiling(i/2) else i;
+    kappa = ps_old[ypar[y_i]];
+    print(c(alpha, kappa));
+    if (PI == 'all') {
+      rho = 0;
+    } else if (PI == 'same_rho') {
+      rho = ps_old[rpar[1]];
+    } else {
+      rho = ps_old[rpar[i]];
+    }
     prob[i,] = prcalc(c(alpha, kappa), matrix(data = c(1, rho, rho, 1), nrow = 2, ncol = 2));
     v[i,,] = vcalc(alpha,kappa,rho);
-  }  
-    
-  # log-likelihood gradient, information matrix
+  }
+  
+  print("v");
+  print(v);
+  # initial computation of log-likelihood gradient d & information matrix E
   for (i in 1:npar) {
-    condi = ((i-1) %% 4) + 1;
-    d[i] = sum(sum((freq[condi,]/prob[condi,])
-                   *v[condi,, ceiling(i/4)]));   
+    g <- if(sum(i==xpar)) 1 else (if(sum(i==ypar)) 2 else 3);
+    ir <- rows[i,];
+    d[i] = sum(sum((freq[ir,]/prob[ir,])
+                   *v[ir,, g]));   
     for (j in 1:npar) {
-      condj = ((j-1) %% 4) + 1;
-      if (condi == condj) {
-        K = sum( freq[condi,]);#/sum(prob[condi,]);
-        L = sum( v[condi,,ceiling(i/4)]   * v[condi,,ceiling(j/4)] / prob[condi,]) -
-            sum( v[condi,,ceiling(i/4)]) * sum(v[condi,, ceiling(j/4)]);#./sum(prob(condi,),2);
+      h <- if(sum(j==xpar)) 1 else (if(sum(j==ypar)) 2 else 3);
+      jr <- rows[j,];
+      ijr <- ir == 1 & jr == 1;
+      if (sum(ijr) > 0) {
+        sum_f <- if(is.null(dim(ijr))) sum else rowSums; # rowSums doesn't reduce to sum when d=1...
+        K = sum_f(freq[ijr,]);
+        L = (sum_f(v[ijr,,g] * v[ijr,,h] / prob[ijr,]) -
+             sum_f(v[ijr,,g])* sum_f(v[ijr,,h]));
         E[i,j] = -K*L; 
       }
     }
   }
-    
+  
   Ei = solve(E, diag(npar));  
   ps_new = ps_old - Ei %*% d;
-  
+  print("ps_new");
+  print(ps_new);
   # iterate!
   
   it = 1;
@@ -105,13 +92,22 @@ two_by_twofit.grt <- function(freq, mod) {
   while (dfp_new > delta) {    
     ps_old = ps_new;
     # calculate log-like gradient and information matrix for first step
-    for (i in 1:4) {
-      alpha = ps_old[xpar[i]]; # x mean
-      kappa = ps_old[ypar[i]]; # y mean
-      rho = ps_old[rpar[i]];
+    for (i in 1:4){
+      # Bookkeeping
+      x_i <- if(PS_x) ceiling(i/2) else i;
+      alpha = ps_old[xpar[x_i]];
+      y_i <- if(PS_y) (if(i<=2) 1 else 3) else i;
+      kappa = ps_old[ypar[y_i]];
+      if (PI == 'all') {
+        rho = 0;
+      } else if (PI == 'same_rho') {
+        rho = ps_old[rpar[1]];
+      } else {
+        rho = ps_old[rpar[i]];
+      }
       prob[i,] = prcalc(c(alpha, kappa), matrix(data = c(1, rho, rho, 1), nrow = 2, ncol = 2));
       v[i,,] = vcalc(alpha,kappa,rho);
-    }  
+    }
    
     # log-likelihood gradient, information matrix
     for (i in 1:npar) {
@@ -140,15 +136,15 @@ two_by_twofit.grt <- function(freq, mod) {
     dfp_old = dfp_new;
     dfp_new = t(df) %*% df;
     it = it + 1;
-    print(it)
-    print(dfp_new)
+    #print(it)
+    #print(dfp_new)
   }
   
   # calculate fit statistics and put them in output structure
-  parameters <- data.frame(aa = c(ps_new[1],ps_new[5],ps_new[9]),
-                           ab = c(ps_new[2],ps_new[6],ps_new[10]),
-                           ba = c(ps_new[3],ps_new[7],ps_new[11]),
-                           bb = c(ps_new[4],ps_new[8],ps_new[12]));
+  parameters <- rbind(c(ps_new[1],1, ps_new[5],1, ps_new[9]),
+                      c(ps_new[2],1, ps_new[6],1, ps_new[10]),
+                      c(ps_new[3],1, ps_new[7],1, ps_new[11]),
+                      c(ps_new[4],1, ps_new[8],1, ps_new[12]));
   
   for (i in 1:4) {
     alpha = ps_new[xpar[i]]; # x mean
@@ -156,17 +152,90 @@ two_by_twofit.grt <- function(freq, mod) {
     rho = ps_new[rpar[i]];
     prob[i,] = prcalc(c(alpha, kappa), matrix(data = c(1, rho, rho, 1), nrow = 2, ncol = 2));
   }  
-  
   info_mat <- -solve(E, diag(npar));
+  fit <- list(obs=freq,fitted=prob,estimate=ps_new,
+            expd2=attr(bb,'ExpD2'),map=pmap,
+            loglik=bb[1],code=code,iter=iterations)
+  
   loglike = sum(sum(freq * log(prob)));
   nll = -loglike;
   aic = 2*npar - 2*loglike;
   bic = npar*log(sum(freq)) - 2*loglike;
   icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
-  return(list(parameters = parameters, prob = prob, info_mat = info_mat, 
-              nll = nll, aic = aic, bic = bic, icomp = icomp))
+  return(grt(parameters, ))
+  list(parameters = parameters, prob = prob, info_mat = info_mat, 
+              nll = nll, aic = aic, bic = bic, icomp = icomp)
 }
 
+# initialize various scalars and arrays 
+
+# parameters in order:
+# mu_x_** mu_y_** rho_**
+# where ** = aa, ab, ba, bb
+initial_point <- function(prob, PS_x, PS_y, PI) {
+  # Figure out how many params we need
+  if (PS_x) {
+    xpar=1:2; nx=2; 
+    rows=matrix(data=rbind(c(1,1,0,0),c(0,0,1,1)),nrow=2,ncol = 4);
+  } else {
+    xpar=1:4; nx=4;
+    rows=matrix(data=diag(4),nrow=4,ncol=4);
+  }
+  if (PS_y) {
+    ypar = nx + 1:2; ny=2;
+    rows=rbind(rows,rbind(c(1,0,1,0),c(0,1,0,1)));
+  } else {
+    ypar = nx + 1:4; ny=4;
+    rows=rbind(rows,diag(4));
+  }
+  if (PI == 'same_rho') {
+    rpar = nx+ny+1; nr = 1;
+    rows=rbind(rows,c(1,1,1,1));
+  } 
+  if(PI == 'none') {
+      rpar = nx+ny+1:4; nr=4;
+      rows=rbind(rows, diag(4));
+  }
+  npar = nx + ny + nr;
+  rows = matrix(data=as.logical(rows),ncol=4,nrow=npar);
+  param_estimate = matrix(data = 0, nrow= npar, ncol = 1); # For param estimates
+  # initial estimates: y means
+  if (PS_x) {
+    for (i in c(1,3)) { 
+      param_estimate[xpar[ceiling(i/2)]] = -qnorm(.5*(prob[i,1]   + prob[i,2]) 
+                                                + .5*(prob[i+1,1] + prob[i+1,2]));}
+  } else {
+    for (i in 1:4) {
+      param_estimate[xpar[i]] = -qnorm(prob[i,1] + prob[i,2]);}
+  }
+  # initial estimates: y means
+  if (PS_y) {
+    for (i in c(1,2)) {
+      param_estimate[ypar[i]] = -qnorm(.5*(prob[i,1]   + prob[i,3])
+                                     + .5*(prob[i+2,1] + prob[i+2,3])); }
+  } else {
+    for (i in 1:4) {
+      param_estimate[ypar[i]] = -qnorm(prob[i,1] + prob[i,3]);}
+  }  
+  # initial estimates: correlation  
+  if (PI=='same_rho') {
+    r = cos(pi/(1+sqrt((sum(prob[,4])*sum(prob[,1]))
+                       / sum(prob[,3])*sum(prob[,2]))));
+    if (r <= -1) { r = -.95; }
+    else if (r >= 1) { r = .95; }
+    param_estimate[rpar[1]] = r;
+  } else if (PI == 'none') {
+    for (i in 1:4) {
+      r = cos(pi/(1+sqrt((prob[i,4]*prob[i,1])/(prob[i,3]*prob[i,2]))));
+      if (r <= -1) { r = -.95; }
+      else if (r >= 1) { r = .95; }
+      param_estimate[rpar[i]] = r;
+    }
+  }
+  print(param_estimate);
+  return(list(xpar=xpar, ypar=ypar, rpar=rpar, ps_old=param_estimate, rows=rows))
+}  
+  
 create_two_by_two_mod <- function(PS_x, PS_y ,PI) {
   mod <- matrix(data = 0, nrow = 1, ncol = 7);
   if (PS_x) mod[1] = 1;
@@ -202,6 +271,7 @@ freq2xtabs <- function(freq) {
 # calculate predicted response probabilities for the given stimulus
 # b/c we assume decisional sep, each response is a quadrant of Cartesian plane
 prcalc <- function(mean, cov) {
+  print(mean);
   pr <- matrix(data = 0, nrow = 1, ncol = 4);
   pr[1,1] = sadmvn(lower = c(-Inf, -Inf), upper = c(0, 0), mean, cov);
   pr[1,2] = sadmvn(lower = c(-Inf, 0), upper = c(0, +Inf), mean, cov);
@@ -248,4 +318,39 @@ vcalc <- function(ap,kp,rh) {
 
   return(ve);
 }
+
+#' Checks whether the input is a valid confusion matrix
+#'
+#' @param x: four-by-four confusion matrix of counts of probabilities
+#' @return Boolean indicating whether input is valid
+#' @export
+#' @examples
+#' checkConfusionMatrix(matrix(c(3,1,1,4,3,3),3)) 
+#' checkConfusionMatrix(matrix(c(.5,.2,.2,.2,
+#'                               .2,.5,.1,.2,
+#'                               .1,.2,.5,.1,
+#'                               .2,.2,.3,.5), 4))
+checkConfusionMatrix <- function(x) {
+  dimx <- dim(x)[1]
+  if( dimx != dim(x)[2]){ 
+    cat("Confusion matrix must have an equal number of rows and columns!\n")
+    return(FALSE)
+  }
+  
+  if(max(x)<=1 & min(x) >=0) {
+    if(all( apply(x, 1, sum) == rep(1,dimx))) {
+      return(TRUE)
+    } else {
+      cat("The rows of confusion probability matrix must sum to one!\n")
+      return(FALSE)
+    }
+  } else if(min(x) >= 0) {
+    if(all( apply(x, 1, sum) == sum(x[1,]))) {
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  } else {return(FALSE)}
+}
+
   

@@ -26,8 +26,7 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 
 fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   if (length(freq) == 16) {
-    two_by_twomod <- create_two_by_two_mod(PS_x, PS_y, PI);
-    return(two_by_twofit.grt(freq, two_by_twomod))
+    return(two_by_twofit.grt(freq, PS_x, PS_y, PI))
   } else {
     n_by_nmap <- create_n_by_n_mod(PS_x, PS_y, PI);
     print(n_by_nmap);
