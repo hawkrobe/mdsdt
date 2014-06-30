@@ -1,5 +1,3 @@
-source("two_by_two_fit.R")
-
 #  Revision to fit model using Newton-Raphson iteration.
 #    Old version uses fit.grt.old
 
@@ -258,7 +256,7 @@ n_by_n_fit.grt <- function (xx, pmap=NA, formula=x~., p0=NA, method=NA,
   return(grt(dists,fit=fit,rcuts = xi,ccuts = eta));
 }
 
-create_n_by_n_mod <- function(PS_x, PS_y, PI) {
+create_n_by_n_mod <- function(PS_x, PS_y, PI, from_2x2 = FALSE) {
   # Each row is distribution, cols are x_mean, x_std, y_mean, y_std, rho
   map <- matrix(data = 0, nrow = 4, ncol= 5)
   if (PS_x) { 
@@ -272,6 +270,10 @@ create_n_by_n_mod <- function(PS_x, PS_y, PI) {
   } else if (PI == 'none') {
     for (i in 1:4) map[i,5] <- i;
   } 
+  if (from_2x2) {
+    map[,c(1,3)] = map[,c(1,3)] + 1;
+    map[,c(2,4)] = c(0,0,0,0);
+  }
   return(map);
 }
 
@@ -822,7 +824,16 @@ bsd.valid.map <- function(map,K){
 # pmap is parameter map and dimx is dimension of data
 bsd.imap <- function(pmap,dimx){
   II <- dimx[1]; JJ <- dimx[2]
-  ixxi <- 1:(II-1);  ib <- II+JJ-1; ixeta <- II:(ib-1);
+  # Handle fact that 2x2 case doesn't use cutpoints (6.30.14 -- RDH)
+  if(II > 2) {
+    ixxi = 1:(II-1);
+    ib <- II+JJ-1;
+    ixeta = II:(ib-1);
+  } else {
+    ixxi = NULL;  
+    ib <- 1;
+    ixeta <- NULL;
+  }
   inp <- max(pmap[,1]); ixmu  <- ib:(ib+inp-1);     ib <- ib+inp
   # if-else clause added 1.20.14 -NHS
   if(max(pmap[,2])>0){
@@ -946,4 +957,11 @@ test.bsd.freq <- function(xi=c(-.6,.15,.65), eta=c(-.5,.25,.75),
                           m=c(0,1,.2,1.2,-.3),n=NULL) {
   print('Calling bsd.freq')
   bsd.freq(xi,eta,m,n)
+}
+
+# Take trace of matrix
+tr <- function (m) {
+  if (!is.matrix(m) | (dim(m)[1] != dim(m)[2])) 
+    stop("m must be a square matrix")
+  return(sum(diag(m)))
 }

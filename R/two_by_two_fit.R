@@ -1,5 +1,3 @@
-require()
-
 #' Fit a bivariate Gaussian model for each response distribution using Newton-Raphson gradient descent
 #'
 #' @param freq 4x4 confusion matrix containing counts. Assumes row/col order: aa, ab, ba, bb.
@@ -109,7 +107,7 @@ two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   
   parameters <- make_parameter_mat(xpar, ypar, rpar, ps_new);
   temp <- estimate_prob_and_var(xpar,ypar,rpar,ps_new);
-  prob=temp$prob; 
+  prob = temp$prob; 
 
   # calculate various fit statistics and put them in output structure
   loglike <- sum(sum(freq * log(prob)));
@@ -118,9 +116,9 @@ two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   aic = 2*npar - 2*loglike;
   bic = npar*log(sum(freq)) - 2*loglike;
   icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
-  fit <- list(obs=freq,fitted=prob, estimate=ps_new,
-            expd2=E, map=create_n_by_n_mod(PS_x, PS_y, PI), iter=it, 
-            nll=-loglike, aic = aic, bic = bic, icomp = icomp)
+  fit <- list(obs=freq2xtabs(freq),fitted=prob, estimate=ps_new,
+            expd2=E, map=create_n_by_n_mod(PS_x, PS_y, PI, from_2x2 = TRUE), iter=it, 
+            nll=-loglike);#, aic = aic, bic = bic, icomp = icomp)
   return(grt(parameters, fit, 0, 0))  
 }
 
@@ -202,7 +200,6 @@ initial_point <- function(prob, PS_x, PS_y, PI) {
   }  
   npar = nx + ny + nr;
   rows = matrix(data=as.logical(rows),ncol=4,nrow=npar);
-  print(rows);
   param_estimate = matrix(data = 0, nrow= npar, ncol = 1); # For param estimates
   # initial estimates: y means
   if (PS_x) {
@@ -259,6 +256,7 @@ freq2xtabs <- function(freq) {
   xdim = dim(freq)[1]; 
   ydim = dim(freq)[2];
   d = as.data.frame(matrix(rep(x=0,times=xdim*ydim*4), nrow = xdim*ydim, ncol = 4));
+  stimuli = c('aa','ab','ba','bb')
   names(d) <- c("Stim", "L1", "L2", "x");
   for (i in 1:4) {
     for (j in 1:4) {
