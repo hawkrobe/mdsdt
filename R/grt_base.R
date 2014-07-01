@@ -69,39 +69,43 @@ summary.grt <- function(b) {
 plot.grt <- function(bb,level=.5,xlab=NULL,ylab=NULL,lim.sc=2, # lim.sc added 1.24.14
                         connect=NULL,names=NULL,clty=1,ccol='Black',llty=1,lcol='Black',
                         main=deparse(substitute(bb)),...) {
-  require(ellipse)
-  xc <- bb$colcuts
-  yc <- bb$rowcuts
-  dd <- bb$dists
-  mx <- dd[,3]; my <- dd[,1]
-  sx <- dd[,4]; sy <- dd[,2]
-  rho <- dd[,5]
-  min.ax <- min(min(mx-lim.sc*sx),min(my-lim.sc*sy))
-  max.ax <- max(max(mx+lim.sc*sx),max(my+lim.sc*sy))
-  X <- c(min.ax,max.ax)
-  Y <- c(min.ax,max.ax)
-  if (is.null(xlab)) xlab <- if(is.null(bb$fit)) 'Y' else
-    names(dimnames(bb$fit$obs)[2])
-  if (is.null(ylab)) ylab <- if(is.null(bb$fit)) 'X' else
-    names(dimnames(bb$fit$obs)[1])
-  # axes=F, box(which="plot") added 1.24.14
-  plot(X,Y,type='n',main=main,xlab="",ylab="",axes=F,...)
-  mtext(text=xlab,side=1,line=1)
-  mtext(text=ylab,side=2,line=1)
-  box(which="plot")
-  for (i in 1:length(yc)) abline(h=yc[i],lty=llty,col=lcol)
-  for (i in 1:length(xc)) abline(v=xc[i],lty=llty,col=lcol)
-  for (i in 1:dim(dd)[1]) {
-    v <- matrix(c(sx[i]^2,rep(sx[i]*sy[i]*rho[i],2),sy[i]^2),2)
-    lines(ellipse(v,centre=c(mx[i],my[i]),level=level))
-  } 
-  if (!is.null(connect[1])) 
-    lines(mx[c(connect,connect[1])],my[c(connect,connect[1])],
-          lty=clty,col=ccol)
-  # names changed 1.24.14
-  if (!is.null(names)) text(mx,my,names)
+  if (length(bb$fit$obs) == 16) {
+    two_by_two_plot.grt(get_fit_params(bb));
+  }
+  else {
+    require(ellipse)
+    xc <- bb$colcuts
+    yc <- bb$rowcuts
+    dd <- bb$dists
+    mx <- dd[,3]; my <- dd[,1]
+    sx <- dd[,4]; sy <- dd[,2]
+    rho <- dd[,5]
+    min.ax <- min(min(mx-lim.sc*sx),min(my-lim.sc*sy))
+    max.ax <- max(max(mx+lim.sc*sx),max(my+lim.sc*sy))
+    X <- c(min.ax,max.ax)
+    Y <- c(min.ax,max.ax)
+    if (is.null(xlab)) xlab <- if(is.null(bb$fit)) 'Y' else
+      names(dimnames(bb$fit$obs)[2])
+    if (is.null(ylab)) ylab <- if(is.null(bb$fit)) 'X' else
+      names(dimnames(bb$fit$obs)[1])
+    # axes=F, box(which="plot") added 1.24.14
+    plot(X,Y,type='n',main=main,xlab="",ylab="",axes=F,...)
+    mtext(text=xlab,side=1,line=1)
+    mtext(text=ylab,side=2,line=1)
+    box(which="plot")
+    for (i in 1:length(yc)) abline(h=yc[i],lty=llty,col=lcol)
+    for (i in 1:length(xc)) abline(v=xc[i],lty=llty,col=lcol)
+    for (i in 1:dim(dd)[1]) {
+      v <- matrix(c(sx[i]^2,rep(sx[i]*sy[i]*rho[i],2),sy[i]^2),2)
+      lines(ellipse(v,centre=c(mx[i],my[i]),level=level))
+    } 
+    if (!is.null(connect[1])) 
+      lines(mx[c(connect,connect[1])],my[c(connect,connect[1])],
+            lty=clty,col=ccol)
+    # names changed 1.24.14
+    if (!is.null(names)) text(mx,my,names)
+  }
 }
-
 
 # Overall fitting function.  Fitting either uses Newton-Raphson iteration
 # or one of the method provided by the R function constrOptim 
