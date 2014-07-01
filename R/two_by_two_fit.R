@@ -116,9 +116,9 @@ two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   aic = 2*npar - 2*loglike;
   bic = npar*log(sum(freq)) - 2*loglike;
   icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
-  fit <- list(obs=freq2xtabs(freq),fitted=prob, estimate=ps_new,
+  fit <- list(obs=freq2xtabs(freq),fitted=freq2xtabs(prob), estimate=ps_new,
             expd2=E, map=create_n_by_n_mod(PS_x, PS_y, PI, from_2x2 = TRUE), iter=it, 
-            nll=-loglike);#, aic = aic, bic = bic, icomp = icomp)
+            loglik=loglike);#, aic = aic, bic = bic, icomp = icomp)
   return(grt(parameters, fit, 0, 0))  
 }
 

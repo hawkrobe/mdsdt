@@ -386,14 +386,12 @@ GOF <- function(bb,teststat='X2',observed=NULL){
   if (test == 5){
     k <- nrow(bb$dists)
     n <- sum(observed)
-    tstat <- 2*bb$fit$loglik + log(n)*k
-  }
+    tstat <- 2*bb$fit$loglik + log(n)*k  }
   if (test < 3){
     structure(tstat,names=teststat,df=df,class='bsdGOF')    
   }else{
     structure(round(tstat,1),names=teststat)
-  }
-  
+  } 
 }
 
 print.bsdGOF <- function(gof){

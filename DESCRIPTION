@@ -5,16 +5,18 @@ Title: Functions for Analysis of Data with General Recognition Theory
 Author: Robert Hawkins <hawkrobe@indiana.edu>, Joe Houpt <jhoupt@indiana.edu>,
     Noah Silbert <noahsilbert@gmail.com>, Leslie Blaha
     <Leslie.Blaha@wpafb.af.mil>
-Maintainer: Joe Houpt <jhoupt@indiana.edu>
+Maintainer: Robert Hawkins <rxdh@stanford.edu>
 Depends:
-    R (>= 1.8.0)
+    R (>= 1.8.0),
+    mnormt
 Description: This package contains a series of tools associated with General
     Recognition Theory.
 License: GPL (>=2)
-iURL: http://r-project.org
+iURL: http://r-project.org   
 Collate:
     'checkConfusionMatrix.R'
     'siTest.R'
-    'gaussian_fit.R'
+    'two_by_two_fit.R'
+    'grt_base.R'
     'grt-data.R'
     'plot_fit.R'
