@@ -1,0 +1,4 @@
+export(fit.grt)
+export(mriTest)
+S3method(print,grt)
+S3method(summary,grt)

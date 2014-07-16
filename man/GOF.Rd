@@ -1,0 +1,34 @@
+\name{GOF}
+\alias{GOF}
+\title{Goodness of fit tests}
+\usage{
+  GOF(bb, teststat = "X2", observed = NULL)
+}
+\arguments{
+  \item{bb}{a \code{grt} object}
+
+  \item{teststat}{a string indicating which statistic to
+  use in the test. May be one of the following: \itemize{
+  \item{'X2'}{for a chi-squared test} \item{'G2'}{for a
+  likelihood-ratio G-test} \item{'AIC'}{for Akaike
+  information criterion score} \item{'AIC.c'}{for the AIC
+  with finite sample size correction} \item{'BIC'}{for
+  Bayesian information criterion score}}}
+
+  \item{observed}{optional, to provide a matrix of observed
+  frequencies if no fit conducted.}
+}
+\description{
+  Includes a number of common goodness of fit measures to
+  compare different models.
+}
+\examples{
+data(thomas01)
+fit1 <- fit.grt(observerA)
+fit2 <- fit.grt(observerA, PI = 'same_rho')
+
+# Take the model with the lower AIC
+GOF(fit1, teststat = 'AIC')
+GOF(fit2, teststat = 'AIC')
+}
+

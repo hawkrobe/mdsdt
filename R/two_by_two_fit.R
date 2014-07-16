@@ -1,16 +1,3 @@
-#' Fit a bivariate Gaussian model for each response distribution using Newton-Raphson gradient descent
-#'
-#' @param freq 4x4 confusion matrix containing counts. Assumes row/col order: aa, ab, ba, bb.
-#' @return List containing the following elements:
-#'  \item{parameters}{The fitted means and correlations for all 4 response distributions}
-#'  \item{prob}{The predicted response probabilities according to the fit}
-#'  \item{info_mat}{The information matrix (inverse of Fisher Information matrix) for all parameters}
-#'  \item{nll}{The negative log likelihood}
-#'  \item{aic}{Akaike information criterion, for model comparison}
-#'  \item{bic}{Bayesian information criterion, for model comparison}
-#'  \item{icomp}{Bozdogan's information complexity (ICOMP), for model comparison}
-#' @examples gaussian_fit(observerB)
-#' @export
 two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   if(!checkConfusionMatrix(freq)) return(FALSE); # Make sure confusion matrix valid
   delta <- 1/10000; # Tolerance
@@ -118,7 +105,7 @@ two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
   fit <- list(obs=freq2xtabs(freq),fitted=freq2xtabs(prob), estimate=ps_new,
             expd2=E, map=create_n_by_n_mod(PS_x, PS_y, PI, from_2x2 = TRUE), iter=it, 
-            loglik=loglike);#, aic = aic, bic = bic, icomp = icomp)
+            loglik=nll);#, aic = aic, bic = bic, icomp = icomp)
   return(grt(parameters, fit, 0, 0))  
 }
 

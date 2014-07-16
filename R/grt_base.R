@@ -1,7 +1,6 @@
-#  Revision to fit model using Newton-Raphson iteration.
-#    Old version uses fit.grt.old
-
-# Define a grt object.
+# S3 grt object
+# 
+# Constructor for a grt fit object, containing information about estimated parameters and likelihoods
 #  dists: Matrix giving means, standard deviations, and correlation
 #           for each stimuls type
 #  fit:   Optional information from fitting program
@@ -22,18 +21,53 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
             class = 'grt')
 }
 
+#' Fit full Gaussian GRT model
+#' 
+#' Use Newton-Raphson gradient descent to fit the mean and covariance of a bivariate Gaussian distribution for each stimulus class, subject to given constraints. 
+#' Standard case uses confusion matrix from a 2x2 full-report identification experiment, but will also work in designs with N levels of confidence associated with each dimension (e.g. in Wickens, 1992).
+#' 
+#' @param freq Can be entered in two ways: 1) a 4x4 confusion matrix containing counts, 
+#' with each row corresponding to a stimulus and each column corresponding to a response. 
+#' row/col order must be aa, ab, ba, bb. 
+#' 2) A three-way 'xtabs' table with the stimuli as the third index and the 
+#' NxN possible responses as the first two indices.
+#' @param PS_x if TRUE, will fit model with assumption of perceptual separability on the x dimension
+#' @param PS_y if TRUE, will fit model with assumption of perceptual separability on the y dimension
+#' @param PI 'none' by default, imposing no restrictions and fitting different correlations for all distributions. 
+#' If 'same_rho', will constrain all distributions to have same correlation parameter. 
+#' If 'all', will constain all distribution to have 0 correlation. 
+#' @return An S3 \code{grt} object
+#' @examples 
+#' # Fit unconstrained model
+#' data(thomas01); 
+#' grt_obj <- grt.fit(observerB);
+#' 
+#' # Use standard S3 generics to examine
+#' print(grt_obj);
+#' summary(grt_obj);
+#' plot(grt_obj);
+#' 
+#' # Fit model with assumption of perceptual separability on both dimensions
+#' grt_obj_PS <- grt.fit(observerB, PS_x = TRUE, PS_y = TRUE);
+#' summary(grt_obj_PS);
+#' plot(grt_obj_PS);
+#' 
+#' # Compare models 
+#' GOF(grt_obj, teststat = 'AIC');
+#' GOF(grt_obj_PS, teststat = 'AIC');
+#' @export
 fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   if (length(freq) == 16) {
     return(two_by_twofit.grt(freq, PS_x, PS_y, PI))
   } else {
     n_by_nmap <- create_n_by_n_mod(PS_x, PS_y, PI);
-    print(n_by_nmap);
     return(n_by_n_fit.grt(freq, pmap=n_by_nmap))
   }
 }
 
-# Prints a grt object, but not fitting information
-print.grt <- function (b) {
+#' @method print grt
+#' @export
+print.grt <- function (b, ...) {
   cat('Row cuts:',format(b$rowcuts,digits=3),'\n')
   cat('Col cuts:',format(b$colcuts,digits=3),'\n')
   cat('Distributions:\n')
@@ -41,9 +75,9 @@ print.grt <- function (b) {
   invisible(b)
 }
 
-# Summary prints the object and, if available, information about
-# standard derrors and the fit.
-summary.grt <- function(b) {
+#' @method summary grt
+#' @export
+summary.grt <- function(b, ...) {
   print.grt(b)
   if (!is.null(fit <- b$fit)){
     cat('Standard errors:\n')
@@ -106,6 +140,7 @@ plot.grt <- function(bb,level=.5,xlab=NULL,ylab=NULL,lim.sc=2, # lim.sc added 1.
     if (!is.null(names)) text(mx,my,names)
   }
 }
+
 
 # Overall fitting function.  Fitting either uses Newton-Raphson iteration
 # or one of the method provided by the R function constrOptim 
@@ -349,7 +384,28 @@ fitted.grt <- function(bb)
   if (is.null(ff <- bb$fit)) NULL else ff$fitted
 
 
-# Goodness of fit
+#' Goodness of fit tests
+#' 
+#' Includes a number of common goodness of fit measures to compare different models.
+#' 
+#' @param bb a \code{grt} object
+#' @param teststat a string indicating which statistic to use in the test. 
+#' May be one of the following:
+#' \itemize{
+#' \item{'X2'}{for a chi-squared test} 
+#' \item{'G2'}{for a likelihood-ratio G-test}
+#' \item{'AIC'}{for Akaike information criterion score}
+#' \item{'AIC.c'}{for the AIC with finite sample size correction}
+#' \item{'BIC'}{for Bayesian information criterion score}}
+#' @param observed optional, to provide a matrix of observed frequencies if no fit conducted.
+#' @examples 
+#' data(thomas01)
+#' fit1 <- fit.grt(observerA)
+#' fit2 <- fit.grt(observerA, PI = 'same_rho')
+#' 
+#' # Take the model with the lower AIC
+#' GOF(fit1, teststat = 'AIC')
+#' GOF(fit2, teststat = 'AIC')
 GOF <- function(bb,teststat='X2',observed=NULL){
   if (!identical(class(bb),'grt'))
     stop('Argument must be object of class "grt"')
@@ -380,6 +436,7 @@ GOF <- function(bb,teststat='X2',observed=NULL){
   }
   if (test == 3){
     k <- nrow(bb$dists)
+    print(k);
     tstat <- 2*bb$fit$loglik + 2*k
   }
   if (test == 4){
