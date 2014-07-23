@@ -1,15 +1,10 @@
 \name{print.grt}
 \alias{print.grt}
-\title{Prints parameter fits}
+\title{summary.grt}
 \usage{
-  \method{print}{grt} (b, ...)
-}
-\arguments{
-  \item{b}{A \code{grt} object}
-
-  \item{...}{Ignored}
+  \method{print}{grt} (x, ...)
 }
 \description{
-  Prints parameter fits
+  Summarize the object returned by fit.grt
 }
 

@@ -1,15 +1,10 @@
 \name{summary.grt}
 \alias{summary.grt}
-\title{Prints detailed summary of fit}
+\title{summary.grt}
 \usage{
-  \method{summary}{grt} (b, ...)
-}
-\arguments{
-  \item{b}{A \code{grt} object}
-
-  \item{...}{Ignored}
+  \method{summary}{grt} (object, ...)
 }
 \description{
-  Prints detailed summary of fit
+  Summarize the object returned by fit.grt
 }
 

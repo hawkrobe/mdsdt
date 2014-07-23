@@ -23,9 +23,9 @@
   compare different models.
 }
 \examples{
-data(thomas01)
-fit1 <- fit.grt(observerA)
-fit2 <- fit.grt(observerA, PI = 'same_rho')
+data(thomasA)
+fit1 <- fit.grt(thomasA)
+fit2 <- fit.grt(thomasA, PI = 'same_rho')
 
 # Take the model with the lower AIC
 GOF(fit1, teststat = 'AIC')

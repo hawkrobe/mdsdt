@@ -1,21 +1,25 @@
-Package: grt
+Package: mdsdt
 Version: 0.0-1
 Date: 2013-01-31
 Title: Functions for Analysis of Data with General Recognition Theory
-Author: Robert Hawkins <hawkrobe@indiana.edu>, Joe Houpt <jhoupt@indiana.edu>,
-    Noah Silbert <noahsilbert@gmail.com>, Leslie Blaha
-    <Leslie.Blaha@wpafb.af.mil>
+Author: Robert Hawkins <rxdh@stanford.edu>, Joe Houpt
+    <joseph.houpt@wright.edu>, Noah Silbert <noahsilbert@gmail.com>, Leslie
+    Blaha <Leslie.Blaha@wpafb.af.mil>, Thomas D. Wickens
+    <twickens@socrates.berkeley.edu>
 Maintainer: Robert Hawkins <rxdh@stanford.edu>
 Depends:
     R (>= 1.8.0),
-    mnormt
+    mnormt,
+    ellipse,
+    mvtnorm,
+    polycor
 Description: This package contains a series of tools associated with General
-    Recognition Theory.
+    Recognition Theory, including Gaussian model fitting of 4x4 and more
+    general confusion matrices, associated plotting and model comparison tools,
+    and tests of Marginal Response Invariance and Sampling Independence
 License: GPL (>=2)
 iURL: http://r-project.org
 Collate:
-    'two_by_two_fit.R'
-    'checkConfusionMatrix.R'
-    'siTest.R'
-    'grt_base.R'
     'grt-data.R'
+    'two_by_two_fit.R'
+    'grt_base.R'

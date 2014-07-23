@@ -15,7 +15,14 @@
   Tests marginal response invariance at both levels on each
   dimension
 }
+\details{
+  If the p value for either level of the x dimension is
+  significant, we are justified in rejecting the null
+  hypothesis of perceptual separability on the x dimension.
+  Similarly for the y dimension.
+}
 \examples{
-mri_test(observerA)
+data(thomasA)
+mriTest(thomasA)
 }
 

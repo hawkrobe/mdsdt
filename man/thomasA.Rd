@@ -1,8 +1,8 @@
 \docType{data}
-\name{thomas01}
-\alias{thomas01}
-\title{Face recognition confusion matrices}
-\format{a \code{matrix} instance, containing counts for all stimulus-response combinations}
+\name{thomasA}
+\alias{thomasA}
+\title{Face recognition confusion matrix for Observer A}
+\format{a \code{matrix} instance, containing counts for all stimulus-response combinations. Each row corresponds to a different stimulus presentation (in the order aa, ab, ba, bb) and each column in that row represents the frequency of each response (in the order aa, ab, ba, bb).}
 \source{
   Thomas, R. D. (2001). Characterizing perceptual
   interactions in face identification using
@@ -15,8 +15,7 @@
   This data set contains the results of a full-report face
   recognition experiment reported in Thomas (2001). For
   Observer A, the two channels are degree of eye separation
-  and nose length. For Observer B, the two channels are
-  degree of eye separation and mouth width.
+  and nose length.
 }
 \author{
   Robin D. Thomas

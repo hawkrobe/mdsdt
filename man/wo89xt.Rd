@@ -1,0 +1,24 @@
+\name{wo89xt}
+\alias{wo89xt}
+\title{Cross-tabulated concurrent detection data}
+\format{an \code{xtabs} instance, containing counts for all stimulus-response combinations.
+For each of 4 Stim levels (where NN = absent+absent, LN = low-frequency signal+absent, NH = absent+high-frequency signal, LH = low-frequency signal+high-frequency signal),
+there is a 4x4 table giving the frequency of each rating.}
+\source{
+  Wickens, T. D., & Olzak, L. A. (1989). The statistical
+  analysis of concurrent detection ratings. Perception &
+  psychophysics, 45(6), 514-528.
+}
+\description{
+  This data set contains a slightly coarse-grained version
+  of Table 1 from Wickens and Olzak (1989). For each of
+  four possible combinations of stimuli, participants gave
+  a graded confidence judgement (collapsed here to 1-4) on
+  both dimensions concurrently. A rating of 1 corresponded
+  to "definitely absent" and a rating of 4 corresponded to
+  "definitely present".
+}
+\author{
+  Thomas D. Wickens and Lynn A. Olzak
+}
+

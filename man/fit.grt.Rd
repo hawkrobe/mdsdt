@@ -39,8 +39,8 @@
 }
 \examples{
 # Fit unconstrained model
-data(thomas01);
-grt_obj <- grt.fit(observerB);
+data(thomasB);
+grt_obj <- fit.grt(thomasB);
 
 # Use standard S3 generics to examine
 print(grt_obj);
@@ -48,7 +48,7 @@ summary(grt_obj);
 plot(grt_obj);
 
 # Fit model with assumption of perceptual separability on both dimensions
-grt_obj_PS <- grt.fit(observerB, PS_x = TRUE, PS_y = TRUE);
+grt_obj_PS <- fit.grt(thomasB, PS_x = TRUE, PS_y = TRUE);
 summary(grt_obj_PS);
 plot(grt_obj_PS);
 
