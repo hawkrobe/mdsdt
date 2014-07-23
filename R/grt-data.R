@@ -1,9 +1,32 @@
-#' @name thomas01
-#' @title Face recognition confusion matrices 
-#' @description This data set contains the results of a full-report face recognition experiment reported in Thomas (2001). For Observer A, the two channels are degree of eye separation and nose length. For Observer B, the two channels are degree of eye separation and mouth width. 
+#' @name thomasA
+#' @title Face recognition confusion matrix for Observer A
+#' @description This data set contains the results of a full-report face recognition experiment reported in Thomas (2001). For Observer A, the two channels are degree of eye separation and nose length. 
 #' @docType data
-#' @usage thomas01
-#' @format a \code{matrix} instance, containing counts for all stimulus-response combinations
+#' @usage data(thomasA)
+#' @format a \code{matrix} instance, containing counts for all stimulus-response combinations. Each row corresponds to a different stimulus presentation (in the order aa, ab, ba, bb) and each column in that row represents the frequency of each response (in the order aa, ab, ba, bb).
 #' @source Thomas, R. D. (2001). Characterizing perceptual interactions in face identification using multidimensional signal detection theory. In M.Wenger & J.T. Townsend (Eds.) Computational, geometric, and process perspectives on facial cognition: Contexts and challenges. Hillsdale, NJ: Erlbaum.
 #' @author Robin D. Thomas 
+NULL
+
+#' @name thomasB
+#' @title Face recognition confusion matrix for Observer B
+#' @description This data set contains the results of a full-report face recognition experiment reported in Thomas (2001). For Observer B, the two channels are degree of eye separation and mouth width. 
+#' @docType data
+#' @usage data(thomasB)
+#' @format a \code{matrix} instance, containing counts for all stimulus-response combinations. Each row corresponds to a different stimulus presentation (in the order aa, ab, ba, bb) and each column in that row represents the frequency of each response (in the order aa, ab, ba, bb).
+#' @source Thomas, R. D. (2001). Characterizing perceptual interactions in face identification using multidimensional signal detection theory. In M.Wenger & J.T. Townsend (Eds.) Computational, geometric, and process perspectives on facial cognition: Contexts and challenges. Hillsdale, NJ: Erlbaum.
+#' @author Robin D. Thomas 
+NULL
+
+#' @name wo89xt
+#' @title Cross-tabulated concurrent detection data
+#' @description This data set contains a slightly coarse-grained version of Table 1 from Wickens and Olzak (1989). 
+#' For each of four possible combinations of stimuli, participants gave a graded confidence judgement (collapsed here to 1-4) on both dimensions concurrently.
+#' A rating of 1 corresponded to "definitely absent" and a rating of 4 corresponded to "definitely present".
+#' @usage data(thomasB)
+#' @format an \code{xtabs} instance, containing counts for all stimulus-response combinations. 
+#' For each of 4 Stim levels (where NN = absent+absent, LN = low-frequency signal+absent, NH = absent+high-frequency signal, LH = low-frequency signal+high-frequency signal), 
+#' there is a 4x4 table giving the frequency of each rating.
+#' @source Wickens, T. D., & Olzak, L. A. (1989). The statistical analysis of concurrent detection ratings. Perception & psychophysics, 45(6), 514-528.
+#' @author Thomas D. Wickens and Lynn A. Olzak
 NULL
