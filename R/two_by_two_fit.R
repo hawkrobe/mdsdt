@@ -1,4 +1,82 @@
-two_by_twofit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
+#' Tests sampling independence for each stimulus response distribution
+#'
+#' @param x four-by-four confusion matrix 
+#' @return data frame containing z-scores and p-values for all four tests
+#' @details If p value is sufficiently low, we're justified in rejecting the null hypothesis of sampling independence. 
+#' @examples
+#' data(thomasA)
+#' siTest(thomasA)
+#' @export
+siTest <- function(x) {
+  if(!checkConfusionMatrix(x)) {
+    return(FALSE)
+  }
+  
+  stimulus <- c("(1,1)", "(1,2)", "(2,1)", "(2,2)")
+  statistic <- rep(NA,4)
+  for ( i in 1:4 ) { 
+    x1 <- matrix(x[i,], 2,2, byrow=T)
+    ex1 <- c(apply(x1,1,sum)*apply(x1,2,sum),
+             rev(apply(x1,1,sum)) * apply(x1,2,sum))
+    ex1 <- matrix(ex1[c(1,4,3,2)],2,2,byrow=TRUE) / sum(x1)
+    statistic[i] <- sum( (x1 - ex1)^2/ ex1 )
+  }
+  
+  return(data.frame(stimulus=stimulus, statistic=statistic, 
+                    p.value=1-pchisq(statistic, 1)) )
+}
+
+#' Tests marginal response invariance at both levels on each dimension
+#'
+#' @param x four-by-four confusion matrix 
+#' @return data frame containing z-scores and p-values for all four tests
+#' @details If the p value for either level of the x dimension is significant, 
+#' we are justified in rejecting the null hypothesis of perceptual separability on the x dimension. 
+#' Similarly for the y dimension.
+#' @examples
+#' data(thomasA)
+#' mriTest(thomasA)
+#' @export
+mriTest <- function(x) {
+  if(!checkConfusionMatrix(x)) {
+    return(FALSE)
+  }
+  
+  stimulus <- c("(1,-)", "(2,-)", "(-,1)", "(-,2)")
+  statistic <- rep(NA,4)
+  
+  for ( A in 1:2 ) {
+    rw <- 2*(A-1)+1
+    #rA.sAB1 <- sum( x[rw,  rw:(rw+1)] )
+    #rA.sAB2 <- sum( x[rw+1,rw:(rw+1)] )
+    rA.sAB1 <- sum( x[rw,  1:2] )
+    rA.sAB2 <- sum( x[rw+1,1:2] )
+    nAB1 <- sum(x[rw,])
+    nAB2 <- sum(x[rw+1,])
+    
+    p.s <- (rA.sAB1 + rA.sAB2)/(nAB1 + nAB2)
+    statistic[A] <- ((rA.sAB1/nAB1 - rA.sAB2/nAB2)/
+                       sqrt(p.s*(1-p.s)*(1/nAB1+1/nAB2)) )
+  }
+  
+  for ( B in 1:2 ) {
+    rw <- 2*(A-1)+1
+    rB.sA1B <- sum( x[B,c(1,3)] )
+    rB.sA2B <- sum(x[B+2,c(1,3)] )
+    nA1B <- sum(x[B,])
+    nA2B <- sum(x[B+2,])
+    
+    p.s <- (rB.sA1B + rB.sA2B)/(nA1B + nA2B)
+    statistic[B+2] <- ((rB.sA2B/nA2B - rB.sA1B/nA1B)/
+                         sqrt(p.s*(1-p.s)*(1/nA1B+1/nA2B)) )
+  }
+  return(data.frame(stimulus=stimulus, statistic=statistic, 
+                    p.value= 2*(pmin(1-pnorm(statistic),pnorm(statistic))) ))
+}
+
+
+#' @export
+two_by_two_fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   if(!checkConfusionMatrix(freq)) return(FALSE); # Make sure confusion matrix valid
   delta <- 1/10000; # Tolerance
   freq = freq + 1;   # protection against zeros, which cause the algorithm to explode
@@ -307,36 +385,14 @@ vcalc <- function(ap,kp,rh) {
   return(ve);
 }
 
-checkConfusionMatrix <- function(x) {
-  dimx <- dim(x)[1]
-  if( dimx != dim(x)[2]){ 
-    cat("Confusion matrix must have an equal number of rows and columns!\n")
-    return(FALSE)
-  }
-  
-  if(max(x)<=1 & min(x) >=0) {
-    if(all( apply(x, 1, sum) == rep(1,dimx))) {
-      return(TRUE)
-    } else {
-      cat("The rows of confusion probability matrix must sum to one!\n")
-      return(FALSE)
-    }
-  } else if(min(x) >= 0) {
-    if(all( apply(x, 1, sum) == sum(x[1,]))) {
-      return(TRUE)
-    } else {
-      return(FALSE)
-    }
-  } else {return(FALSE)}
-}
-
 get_fit_params <- function(grt_obj) {
   d = distribution.parameters(bb=grt_obj);
   return(list(aa=d[1,c(1,3,5)], ab = d[2,c(1,3,5)], 
               ba = d[3, c(1,3,5)], bb = d[4,c(1,3,5)]));
 }
 
-two_by_two_plot.grt <- function(fit_params) {
+#' @export
+two_by_two_plot.grt <- function(fit_params, xlab1, ylab1) {
   bin_width= .25;
   bivar_obj = bivar_norm(fit_params, bin_width);
   dist = bivar_obj$dist;
@@ -349,7 +405,7 @@ two_by_two_plot.grt <- function(fit_params) {
   # Plot Gaussian contours 
   plot.new();
   old_mar <- par()$mar;
-  par(fig=c(.3,1,.3,1), mar=c(2,.5,1,.5));
+  par(fig=c(.3,1,.3,1), mar=c(2,.5,1,1));
   for (i in 1:4) {
     cond = fit_params[[i]];
     par(new = TRUE);
@@ -357,6 +413,7 @@ two_by_two_plot.grt <- function(fit_params) {
             levels = level, xlim = xlims, ylim = ylims,
             drawlabels = FALSE, axes = FALSE, asp=1);
     points(cond[1], cond[2], pch = '+');
+    title(xlab = 'x', ylab = 'y');
   }
   
   # Plot decision bounds
@@ -374,15 +431,15 @@ two_by_two_plot.grt <- function(fit_params) {
   }
   
   # Plot X marginals
-  par(fig=c(.3,1,.1,.4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-  plot(margx$aa,type='l');
+  par(fig=c(.3,1,.05,.4), mar = c(3.8,.5,1,1), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+  plot(margx$aa,type='l', xlab = xlab1, ylab = NULL);
   lines(margx$ab,type='l',lty=2);
   lines(margx$ba,type='l',lty=2);
   lines(margx$bb,type='l');
   
   # Plot Y marginals
-  par(fig=c(.1,.3,.3,1), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-  plot(margy$aa,bivar_obj$y,type='l');
+  par(fig=c(.05,.3,.3,1), mar = c(2, 3.75, 1, 0), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+  plot(margy$aa,bivar_obj$y,type='l', xlab = NULL, ylab = ylab1);
   lines(margy$ab,bivar_obj$y, type='l',lty=2);
   lines(margy$ba,bivar_obj$y,type='l',lty=2);
   lines(margy$bb,bivar_obj$y,type='l');
@@ -430,4 +487,23 @@ bivar_norm <- function(fit_params, bin_width) {
               y = y,
               covars = covars));
 }
+
+checkConfusionMatrix <- function(x) {
+  dimx <- dim(x)[1]
+  if( dimx != dim(x)[2]){ 
+    cat("Confusion matrix must have an equal number of rows and columns!\n")
+    return(FALSE)
+  }
+  
+  if(max(x)<=1 & min(x) >=0) {
+    if(all( apply(x, 1, sum) == rep(1,dimx))) {
+      return(TRUE)
+    } else {
+      cat("The rows of confusion probability matrix must sum to one!\n")
+      return(FALSE)
+    }
+  } else {
+    return(TRUE)}
+}
+
   

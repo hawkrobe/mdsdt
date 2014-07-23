@@ -39,8 +39,8 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' @return An S3 \code{grt} object
 #' @examples 
 #' # Fit unconstrained model
-#' data(thomas01); 
-#' grt_obj <- grt.fit(observerB);
+#' data(thomasB); 
+#' grt_obj <- fit.grt(thomasB);
 #' 
 #' # Use standard S3 generics to examine
 #' print(grt_obj);
@@ -48,7 +48,7 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' plot(grt_obj);
 #' 
 #' # Fit model with assumption of perceptual separability on both dimensions
-#' grt_obj_PS <- grt.fit(observerB, PS_x = TRUE, PS_y = TRUE);
+#' grt_obj_PS <- fit.grt(thomasB, PS_x = TRUE, PS_y = TRUE);
 #' summary(grt_obj_PS);
 #' plot(grt_obj_PS);
 #' 
@@ -58,59 +58,72 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' @export
 fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   if (length(freq) == 16) {
-    return(two_by_twofit.grt(freq, PS_x, PS_y, PI))
+    return(two_by_two_fit.grt(freq, PS_x, PS_y, PI))
   } else {
     n_by_nmap <- create_n_by_n_mod(PS_x, PS_y, PI);
     return(n_by_n_fit.grt(freq, pmap=n_by_nmap))
   }
 }
 
+#' summary.grt
+#' 
+#' Summarize the object returned by fit.grt
 #' @method print grt
 #' @export
-print.grt <- function (b, ...) {
-  cat('Row cuts:',format(b$rowcuts,digits=3),'\n')
-  cat('Col cuts:',format(b$colcuts,digits=3),'\n')
+print.grt <- function (x, ...) {
+  cat('Row cuts:',format(x$rowcuts,digits=3),'\n')
+  cat('Col cuts:',format(x$colcuts,digits=3),'\n')
   cat('Distributions:\n')
-  print(round(b$dists,3))
-  invisible(b)
+  print(round(x$dists,3))
+  invisible(x)
 }
 
+#' summary.grt
+#' 
+#' Summarize the object returned by fit.grt
 #' @method summary grt
 #' @export
-summary.grt <- function(b, ...) {
-  print.grt(b)
-  if (!is.null(fit <- b$fit)){
+summary.grt <- function(object, ...) {
+  print.grt(object)
+  if (!is.null(fit <- object$fit)){
     cat('Standard errors:\n')
-    print(round(distribution.se(b),3))
-    print(GOF(b,test='X2'))
-    print(GOF(b,test='G2'))
+    print(round(distribution.se(object),3))
+    print(GOF(object,teststat='X2'))
+    print(GOF(object,teststat='G2'))
     cat('Log likelihood',fit$loglik,'\nConvergence code',fit$code,
         'in',fit$iter,'iterations\n')
   }
-  invisible(b)
+  invisible(object)
 }
 
-
-# Plots a grt object.  Nonobvious arguments are
-#   bb:      A grt object.
-#   level:   Proportion of distribution enclosed in ellipse (default 0.5).
-#   connect: Connect points in the order given in a vector.
-#   llty, lcol: Line type and color for cutpoint lines.
-#   clty, ccol: Line type and color for connecting line.
-#   names:   Print distribution names in center of distributions.
-# Standard commands for axes, overall label, etc. are also available.  Unless
-# otherwise specified, axis labels are taken from the dimension names.
-plot.grt <- function(bb,level=.5,xlab=NULL,ylab=NULL,lim.sc=2, # lim.sc added 1.24.14
-                        connect=NULL,names=NULL,clty=1,ccol='Black',llty=1,lcol='Black',
-                        main=deparse(substitute(bb)),...) {
-  if (length(bb$fit$obs) == 16) {
-    two_by_two_plot.grt(get_fit_params(bb));
+#' plot.grt
+#' 
+#' Plot the object returned by fit.grt
+#' 
+#' @param x a grt object, as returned by fit.grt
+#' @param xlab optional label for the x axis (defaults to NULL)
+#' @param ylab optional label for the y axis (defaults to NULL)
+#' @method plot grt
+#' @export
+plot.grt <- function(x, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim.sc added 1.24.14
+#                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
+  lim.sc=2;
+  connect=NULL;
+  names=NULL;
+  clty=1;
+  ccol='Black';
+  llty=1;
+  lcol='Black';
+  if (length(x$fit$obs) == 16) {
+    two_by_two_plot.grt(get_fit_params(x), xlab, ylab);
   }
   else {
-    require(ellipse)
-    xc <- bb$colcuts
-    yc <- bb$rowcuts
-    dd <- bb$dists
+    require(mvtnorm);
+    level=.5;
+    main=deparse(substitute(x))
+    xc <- x$colcuts
+    yc <- x$rowcuts
+    dd <- x$dists
     mx <- dd[,3]; my <- dd[,1]
     sx <- dd[,4]; sy <- dd[,2]
     rho <- dd[,5]
@@ -118,10 +131,10 @@ plot.grt <- function(bb,level=.5,xlab=NULL,ylab=NULL,lim.sc=2, # lim.sc added 1.
     max.ax <- max(max(mx+lim.sc*sx),max(my+lim.sc*sy))
     X <- c(min.ax,max.ax)
     Y <- c(min.ax,max.ax)
-    if (is.null(xlab)) xlab <- if(is.null(bb$fit)) 'Y' else
-      names(dimnames(bb$fit$obs)[2])
-    if (is.null(ylab)) ylab <- if(is.null(bb$fit)) 'X' else
-      names(dimnames(bb$fit$obs)[1])
+    if (is.null(xlab)) xlab <- if(is.null(x$fit)) 'Y' else
+      names(dimnames(x$fit$obs)[2])
+    if (is.null(ylab)) ylab <- if(is.null(x$fit)) 'X' else
+      names(dimnames(x$fit$obs)[1])
     # axes=F, box(which="plot") added 1.24.14
     plot(X,Y,type='n',main=main,xlab="",ylab="",axes=F,...)
     mtext(text=xlab,side=1,line=1)
@@ -141,6 +154,77 @@ plot.grt <- function(bb,level=.5,xlab=NULL,ylab=NULL,lim.sc=2, # lim.sc added 1.
   }
 }
 
+#' Goodness of fit tests
+#' 
+#' Includes a number of common goodness of fit measures to compare different models.
+#' 
+#' @param bb a \code{grt} object
+#' @param teststat a string indicating which statistic to use in the test. 
+#' May be one of the following:
+#' \itemize{
+#' \item{'X2'}{for a chi-squared test} 
+#' \item{'G2'}{for a likelihood-ratio G-test}
+#' \item{'AIC'}{for Akaike information criterion score}
+#' \item{'AIC.c'}{for the AIC with finite sample size correction}
+#' \item{'BIC'}{for Bayesian information criterion score}}
+#' @param observed optional, to provide a matrix of observed frequencies if no fit conducted.
+#' @examples 
+#' data(thomasA)
+#' fit1 <- fit.grt(thomasA)
+#' fit2 <- fit.grt(thomasA, PI = 'same_rho')
+#' 
+#' # Take the model with the lower AIC
+#' GOF(fit1, teststat = 'AIC')
+#' GOF(fit2, teststat = 'AIC')
+#' @export
+GOF <- function(bb,teststat='X2',observed=NULL){
+  if (!identical(class(bb),'grt'))
+    stop('Argument must be object of class "grt"')
+  if (is.null(ff <- bb$fit) && is.null(observed))
+    stop('Must have fitted model, observed frequencies, or both')
+  # added AIC, AICc, BIC 1.27.14
+  statlist <- c('X2','G2','AIC','AIC.c','BIC')
+  #print(c(statlist,teststat))
+  #print(statlist %in% teststat)
+  #teststat <- toupper(teststat)
+  test <- pmatch(teststat,statlist)
+  if (is.na(test)) stop('Test statistic unrecognized')
+  teststat <- statlist[test]
+  df <- if (is.null(observed)) length(ff$estimate) else 0
+  if (is.null(observed)) observed <- ff$obs
+  if (!is.null(ff)) ex <- ff$fitted else{
+    nk <- apply(observed,3,sum)
+    ex <- array(dim=dim(observed))
+    for (k in 1:dim(observed)[3])
+      ex[,,k] <- bsd.freq(bb$rowcuts,bb$colcuts,bb$dists[k,],nk[k])
+  }
+  df <- length(observed) - dim(observed)[3] - df
+  if (test == 1){
+    tstat <- sum((observed-ex)^2/ex)}
+  if (test == 2){
+    ex <- ex[observed>0]; observed <- observed[observed>0]
+    tstat <- 2*sum(observed*log(observed/ex))
+  }
+  if (test == 3){
+    k <- nrow(bb$dists)
+    print(k);
+    tstat <- 2*bb$fit$loglik + 2*k
+  }
+  if (test == 4){
+    k <- nrow(bb$dists)
+    n <- sum(observed)
+    tstat <- 2*bb$fit$loglik + (2*k*(k+1))/(n-k-1)
+  }
+  if (test == 5){
+    k <- nrow(bb$dists)
+    n <- sum(observed)
+    tstat <- 2*bb$fit$loglik + log(n)*k  }
+  if (test < 3){
+    structure(tstat,names=teststat,df=df,class='bsdGOF')    
+  }else{
+    structure(round(tstat,1),names=teststat)
+  } 
+}
 
 # Overall fitting function.  Fitting either uses Newton-Raphson iteration
 # or one of the method provided by the R function constrOptim 
@@ -321,7 +405,7 @@ create_n_by_n_mod <- function(PS_x, PS_y, PI, from_2x2 = FALSE) {
 parameter.map <- function(bb){
   if (!identical(class(bb),'grt'))
     stop('Argument must be object of class "grt"')
-  if (is.null(ff <- bb$fit)) null else ff$map
+  if (is.null(ff <- bb$fit)) NULL else ff$map
 }
 
 
@@ -384,76 +468,6 @@ fitted.grt <- function(bb)
   if (is.null(ff <- bb$fit)) NULL else ff$fitted
 
 
-#' Goodness of fit tests
-#' 
-#' Includes a number of common goodness of fit measures to compare different models.
-#' 
-#' @param bb a \code{grt} object
-#' @param teststat a string indicating which statistic to use in the test. 
-#' May be one of the following:
-#' \itemize{
-#' \item{'X2'}{for a chi-squared test} 
-#' \item{'G2'}{for a likelihood-ratio G-test}
-#' \item{'AIC'}{for Akaike information criterion score}
-#' \item{'AIC.c'}{for the AIC with finite sample size correction}
-#' \item{'BIC'}{for Bayesian information criterion score}}
-#' @param observed optional, to provide a matrix of observed frequencies if no fit conducted.
-#' @examples 
-#' data(thomas01)
-#' fit1 <- fit.grt(observerA)
-#' fit2 <- fit.grt(observerA, PI = 'same_rho')
-#' 
-#' # Take the model with the lower AIC
-#' GOF(fit1, teststat = 'AIC')
-#' GOF(fit2, teststat = 'AIC')
-GOF <- function(bb,teststat='X2',observed=NULL){
-  if (!identical(class(bb),'grt'))
-    stop('Argument must be object of class "grt"')
-  if (is.null(ff <- bb$fit) && is.null(observed))
-    stop('Must have fitted model, observed frequencies, or both')
-  # added AIC, AICc, BIC 1.27.14
-  statlist <- c('X2','G2','AIC','AIC.c','BIC')
-  #print(c(statlist,teststat))
-  #print(statlist %in% teststat)
-  #teststat <- toupper(teststat)
-  test <- pmatch(teststat,statlist)
-  if (is.na(test)) stop('Test statistic unrecognized')
-  teststat <- statlist[test]
-  df <- if (is.null(observed)) length(ff$estimate) else 0
-  if (is.null(observed)) observed <- ff$obs
-  if (!is.null(ff)) ex <- ff$fitted else{
-    nk <- apply(observed,3,sum)
-    ex <- array(dim=dim(observed))
-    for (k in 1:dim(observed)[3])
-      ex[,,k] <- bsd.freq(bb$rowcuts,bb$colcuts,bb$dists[k,],nk[k])
-  }
-  df <- length(observed) - dim(observed)[3] - df
-  if (test == 1){
-    tstat <- sum((observed-ex)^2/ex)}
-  if (test == 2){
-    ex <- ex[observed>0]; observed <- observed[observed>0]
-    tstat <- 2*sum(observed*log(observed/ex))
-  }
-  if (test == 3){
-    k <- nrow(bb$dists)
-    print(k);
-    tstat <- 2*bb$fit$loglik + 2*k
-  }
-  if (test == 4){
-    k <- nrow(bb$dists)
-    n <- sum(observed)
-    tstat <- 2*bb$fit$loglik + (2*k*(k+1))/(n-k-1)
-  }
-  if (test == 5){
-    k <- nrow(bb$dists)
-    n <- sum(observed)
-    tstat <- 2*bb$fit$loglik + log(n)*k  }
-  if (test < 3){
-    structure(tstat,names=teststat,df=df,class='bsdGOF')    
-  }else{
-    structure(round(tstat,1),names=teststat)
-  } 
-}
 
 print.bsdGOF <- function(gof){
   df <- attr(gof,'df')
@@ -496,9 +510,9 @@ linear.hypothesis <- function(b,m,c=0,set='means'){
 
 # Comparison of models
 anova.grt <- function(b1,b2){
-  g21 <- GOF(b1,test='G2')
+  g21 <- GOF(b1,teststat='G2')
   df1 <- attr(g21,'df')
-  g22 <- GOF(b2,test='G2')
+  g22 <- GOF(b2,teststat='G2')
   df2 <- attr(g22,'df')
   # p.val added 1.24.14 -NHS
   DG2 <- round(g21-g22,3)
