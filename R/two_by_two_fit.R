@@ -407,99 +407,66 @@ get_fit_params <- function(grt_obj) {
 
 #' @export
 two_by_two_plot.grt <- function(fit_params, xlab1, ylab1) {
-  bin_width= .25;
-  bivar_obj = bivar_norm(fit_params, bin_width);
-  dist = bivar_obj$dist;
-  x = bivar_obj$x;
-  y = bivar_obj$y;
-  xlims = c(x[1], x[length(x)]);
-  ylims = c(y[1], y[length(y)]);
-  level = c(.1, .1); # Determines which contour to plot
+  bin_width= .05; # determines smoothness of marginal plots
+  level = .5#c(.1, .1); # Determines which contour to plot
+  ex = .25 # determines relative size of main plot and marginal plots
+  
+  xlims = c(min(c(fit_params[[1]][1],fit_params[[2]][1],
+                  fit_params[[3]][1],fit_params[[4]][1])-2.5),
+            max(c(fit_params[[1]][1],fit_params[[2]][1],
+                  fit_params[[3]][1],fit_params[[4]][1])+2.5))
+  ylims = c(min(c(fit_params[[1]][2],fit_params[[2]][2],
+                  fit_params[[3]][2],fit_params[[4]][2])-2.5),
+            max(c(fit_params[[1]][2],fit_params[[2]][2],
+                  fit_params[[3]][2],fit_params[[4]][2])+2.5))
+
+  x = seq(xlims[1],xlims[2],by=bin_width)
+  y = seq(ylims[1],ylims[2],by=bin_width)
   
   # Plot Gaussian contours 
-  plot.new();
   old_mar <- par()$mar;
-  par(fig=c(.3,1,.3,1), mar=c(2,.5,1,1));
-  for (i in 1:4) {
-    cond = fit_params[[i]];
-    par(new = TRUE);
-    contour(x = x, y = y, z = dist[i,,], 
-            levels = level, xlim = xlims, ylim = ylims,
-            drawlabels = FALSE, axes = FALSE, asp=1);
-    points(cond[1], cond[2], pch = '+');
-    title(xlab = 'x', ylab = 'y');
-  }
-  
+  par(fig=c(ex,1,ex,1), mai=rep(.05,4),pty="m",xaxt="n",yaxt="n")
+  # need to take into account optional marginal plots for x/y labs?
+  # currently assumes marginals will be plotted, so no x/y labs
+  plot(0,0,type="n",xlim=xlims,ylim=ylims,xlab="",ylab="",main="",axes=F)
+  box(which="plot",mai=rep(0,4))
   # Plot decision bounds
   abline(h=0);
   abline(v=0);
-  
+  for (i in 1:4) {
+    cond = fit_params[[i]];
+    cov <- matrix(data=c(1, cond[3], cond[3], 1), nrow = 2);
+    mu = cond[1:2]
+    par(new = TRUE);
+    lines(ellipse(cov,centre=mu,level=level))
+    points(cond[1], cond[2], pch = '+');
+    title(xlab = 'x', ylab = 'y');
+  }
+    
   # compute marginals
   margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
   for (i in 1:4) {
     cond = fit_params[[i]];
-    xvar = bivar_obj$covars[i,1,1];
-    yvar = bivar_obj$covars[i,2,2];
-    margx[[i]] = (1 / sqrt(2*pi*xvar)) * exp(-.5*((x-cond[1])/sqrt(xvar))^2);
-    margy[[i]] = (1 / sqrt(2*pi*yvar)) * exp(-.5*((y-cond[2])/sqrt(yvar))^2);
+    margx[[i]] = (1 / sqrt(2*pi)) * exp(-.5*((x-cond[1]))^2);
+    margy[[i]] = (1 / sqrt(2*pi)) * exp(-.5*((y-cond[2]))^2);
   }
   
   # Plot X marginals
-  par(fig=c(.3,1,.05,.4), mar = c(3.8,.5,1,1), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-  plot(margx$aa,type='l', xlab = xlab1, ylab = NULL);
-  lines(margx$ab,type='l',lty=2);
-  lines(margx$ba,type='l',lty=2);
-  lines(margx$bb,type='l');
+  par(fig=c(ex,1,0,ex), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+  plot(x,margx$aa,type='l', lty=1, xlab = xlab1, ylab = NULL);
+  lines(x,margx$ab,type='l',lty=2);
+  lines(x,margx$ba,type='l',lty=1);
+  lines(x,margx$bb,type='l',lty=2);
   
   # Plot Y marginals
-  par(fig=c(.05,.3,.3,1), mar = c(2, 3.75, 1, 0), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-  plot(margy$aa,bivar_obj$y,type='l', xlab = NULL, ylab = ylab1);
-  lines(margy$ab,bivar_obj$y, type='l',lty=2);
-  lines(margy$ba,bivar_obj$y,type='l',lty=2);
-  lines(margy$bb,bivar_obj$y,type='l');
+  par(fig=c(0,ex,ex,1), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+  plot(margy$aa,y,type='l', lty=1, xlab = NULL, ylab = ylab1);
+  lines(margy$ab,y, type='l',lty=1);
+  lines(margy$ba,y,type='l',lty=2);
+  lines(margy$bb,y,type='l',lty=2);
   
   # Reset graphical par for later
   par(mar = old_mar, fig = c(0,1,0,1));
-}
-
-# Returns the density of bivariate normal distribution over a grid of x,y values
-bivar_norm <- function(fit_params, bin_width) {
-  # Compute covariance matrices
-  covars <- array(0, dim = c(4,2,2));
-  for (i in 1:4) {
-    cond = fit_params[[i]];
-    covars[i,,] <- matrix(data=c(1, cond[3], cond[3], 1), ncol = 2, nrow = 2);
-  }
-  # Set the range that will be graphed
-  densfact = 3; # how many SDs?
-  xrange <- array(0, dim = c(4,2));
-  yrange <- array(0, dim = c(4,2));
-  for (i in 1:4) {
-    cond = fit_params[[i]];
-    x_sd = densfact*sqrt(covars[i,1,1]);
-    y_sd = densfact*sqrt(covars[i,2,2]);
-    xrange[i,] = c(cond[1] - x_sd, cond[1] + x_sd);
-    yrange[i,] = c(cond[2] - y_sd, cond[2] + y_sd);
-  }  
-  x = seq(from = min(xrange), to = max(xrange), by = bin_width);
-  y = seq(from = min(yrange), to = max(yrange), by = bin_width);
-  lenx = length(x);
-  leny = length(y);
-  dist = array(0, dim = c(4, lenx, leny));  
-  for (i in 1:4) {
-    cond = fit_params[[i]];
-    for (y_ind in seq(from=leny, to=1, by = -1)) {
-      for (x_ind in seq(from=1, to=lenx)) {
-        dist[i, x_ind, y_ind] = dmnorm(c(x[x_ind], y[y_ind]), 
-                                       mean = c(cond[1], cond[2]), 
-                                       varcov = covars[i,,]);
-      }
-    }
-  }
-  return(list(dist = dist, 
-              x = x,
-              y = y,
-              covars = covars));
 }
 
 checkConfusionMatrix <- function(x) {

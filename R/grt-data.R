@@ -30,3 +30,13 @@ NULL
 #' @source Wickens, T. D., & Olzak, L. A. (1989). The statistical analysis of concurrent detection ratings. Perception & psychophysics, 45(6), 514-528.
 #' @author Thomas D. Wickens and Lynn A. Olzak
 NULL
+
+#' @name silbert12
+#' @title Phoneme confusion matrix for observer 3
+#' @description Confusion matrix from speech perception experiment probing confusions between noise-masked tokens of English [p],[b],[f], and [v]
+#' @usage data(silbert14)
+#' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columsn to responses
+#' @source Silbert, N. H. (2012). Syllable structure and integration of voicing and manner of articulation information in labial consonant identification. Journal of the Acoustical Society of America, 131(5), 4076-4086.
+#' @author Noah H. Silbert
+M = matrix(c(189,9,2,0,5,146,1,48,2,0,195,3,0,28,1,171),nrow=4,byrow=T)
+dimnames(M) = list(c("p","b","f","v"),c("p","b","f","v"))
