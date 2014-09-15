@@ -406,9 +406,9 @@ get_fit_params <- function(grt_obj) {
 }
 
 #' @export
-two_by_two_plot.grt <- function(fit_params, xlab1, ylab1) {
+two_by_two_plot.grt <- function(fit_params, xlab1, ylab1, level = .5) {
   bin_width= .05; # determines smoothness of marginal plots
-  level = .5#c(.1, .1); # Determines which contour to plot
+  #level = .5#c(.1, .1); # Determines which contour to plot
   ex = .25 # determines relative size of main plot and marginal plots
   
   xlims = c(min(c(fit_params[[1]][1],fit_params[[2]][1],

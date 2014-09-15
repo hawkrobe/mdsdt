@@ -65,10 +65,12 @@ fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   }
 }
 
-#' summary.grt
+#' print.grt
 #' 
-#' Summarize the object returned by fit.grt
+#' Print the object returned by fit.grt
 #' @method print grt
+#' @param x An object returned by fit.grt 
+#' @param ... further arguments passed to or from other methods, as in the generic print function
 #' @export
 print.grt <- function (x, ...) {
   cat('Row cuts:',format(x$rowcuts,digits=3),'\n')
@@ -82,14 +84,15 @@ print.grt <- function (x, ...) {
 #' 
 #' Summarize the object returned by fit.grt
 #' @method summary grt
+#' @param object An object retrned by fit.grt
+#' @param ... additional arguments affecting the summary produced, as in the generic summary function
 #' @export
 summary.grt <- function(object, ...) {
   print.grt(object)
   if (!is.null(fit <- object$fit)){
     cat('Standard errors:\n')
     print(round(distribution.se(object),3))
-    print(GOF(object,teststat='X2'))
-    print(GOF(object,teststat='G2'))
+    print(GOF(object,teststat='AIC'))
     cat('Log likelihood',fit$loglik,'\nConvergence code',fit$code,
         'in',fit$iter,'iterations\n')
   }
@@ -101,11 +104,13 @@ summary.grt <- function(object, ...) {
 #' Plot the object returned by fit.grt
 #' 
 #' @param x a grt object, as returned by fit.grt
+#' @param level number between 0 and 1 indicating which contour to plot (defaults to .5)
 #' @param xlab optional label for the x axis (defaults to NULL)
 #' @param ylab optional label for the y axis (defaults to NULL)
+#' @param ... Arguments to be passed to methods, as in generic plot function
 #' @method plot grt
 #' @export
-plot.grt <- function(x, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim.sc added 1.24.14
+plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim.sc added 1.24.14
 #                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
   lim.sc=2;
   connect=NULL;
@@ -115,11 +120,10 @@ plot.grt <- function(x, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim.sc added 1.
   llty=1;
   lcol='Black';
   if (length(x$fit$obs) == 16) {
-    two_by_two_plot.grt(get_fit_params(x), xlab, ylab);
+    two_by_two_plot.grt(get_fit_params(x), xlab, ylab, level = level);
   }
   else {
-    require(mvtnorm);
-    level=.5;
+    #require(mvtnorm);
     main=deparse(substitute(x))
     xc <- x$colcuts
     yc <- x$rowcuts
@@ -838,7 +842,7 @@ bsd.grad <- function(p,...) attr(bsd.llike(p,d.level=1,...),'gradient')
 # the densities phi, and the row and column derivative terms (the latter
 # as its transpose).
 bsd.freq <- function (xi,eta,m,n=NULL) {
-  require(mvtnorm)
+  #require(mvtnorm)
   fracw <- 10
   nrow <- length(xi) +1
   ncol <- length(eta)+ 1
@@ -848,13 +852,13 @@ bsd.freq <- function (xi,eta,m,n=NULL) {
   pii <- matrix(nrow=nrow, ncol=ncol)
   cx <- matrix(c(1,rho,rho,1),2)
   for (i in 1:nrow) for (j in 1:ncol) 
-    pii[i,j] <- pmvnorm(c(Xi[i],Eta[j]), c(Xi[i+1],Eta[j+1]),corr=cx)
+    pii[i,j] <- sadmvn(lower = c(Xi[i],Eta[j]), upper = c(Xi[i+1],Eta[j+1]),varcov=cx)
   if (is.null(n)){
     Xis <- Xi[2:nrow]
     Etas <- Eta[2:ncol]
     phi <- matrix(0, nrow=nrow-1, ncol=ncol-1)
     for (i in 1:(nrow-1)) for (j in 1:(ncol-1))
-      phi[i,j] <- dmvnorm(c(Xis[i],Etas[j]),sigma=cx)
+      phi[i,j] <- dmnorm(c(Xis[i],Etas[j]),varcov=cx)
     list(pi = pii, phi = phi,
          d1 = dnorm(Xis)*pnorm(outer(-rho*Xis,c(Etas,Inf),'+')/sqrt(1-rho^2)), 
          d2 = dnorm(Etas)*pnorm(outer(-rho*Etas,c(Xis,Inf),'+')/sqrt(1-rho^2)))
@@ -953,7 +957,6 @@ bsd.map2array <- function(p,pmap,imap,m0=0,s0=1){
 # Construct an initial vector
 # The value delta is added to all frequencies to avoid problems with zeros
 bsd.initial <- function(xx,pmap,delta=0.5){
-  require(polycor)
   pnames <- c('mu','sigma','nu','tau','rho')
   dxx <- dim(xx)
   II <- dxx[1]; JJ <- dxx[2];  KK <- dxx[3];
