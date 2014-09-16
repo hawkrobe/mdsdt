@@ -18,7 +18,7 @@ siTest <- function(x) {
     return(FALSE)
   }
   
-  stimulus <- c("(1,1)", "(1,2)", "(2,1)", "(2,2)")
+  stimulus <- c("(A1,B1)", "(A1,B2)", "(A2,B1)", "(A2,B2)")
   statistic <- rep(NA,4)
   for ( i in 1:4 ) { 
     x1 <- matrix(x[i,], 2,2, byrow=T)
@@ -28,8 +28,8 @@ siTest <- function(x) {
     statistic[i] <- sum( (x1 - ex1)^2/ ex1 )
   }
   
-  return(data.frame(stimulus=stimulus, statistic=statistic, 
-                    p.value=1-pchisq(statistic, 1)) )
+  return(data.frame(stimulus=stimulus, chi.2=round(statistic,3), 
+                    p.value=round(1-pchisq(statistic, 1),3)))
 }
 
 #' Tests marginal response invariance at both levels on each dimension
@@ -56,15 +56,13 @@ mriTest <- function(x) {
     return(FALSE)
   }
   
-  stimulus <- c("(1,-)", "(2,-)", "(-,1)", "(-,2)")
+  response <- c("(A1,-)", "(A2,-)", "(-,B1)", "(-,B2)")
   statistic <- rep(NA,4)
   
   for ( A in 1:2 ) {
     rw <- 2*(A-1)+1
-    #rA.sAB1 <- sum( x[rw,  rw:(rw+1)] )
-    #rA.sAB2 <- sum( x[rw+1,rw:(rw+1)] )
-    rA.sAB1 <- sum( x[rw,  1:2] )
-    rA.sAB2 <- sum( x[rw+1,1:2] )
+    rA.sAB1 <- sum( x[rw,  rw:(rw+1)] )
+    rA.sAB2 <- sum( x[rw+1,rw:(rw+1)] )
     nAB1 <- sum(x[rw,])
     nAB2 <- sum(x[rw+1,])
     
@@ -74,18 +72,17 @@ mriTest <- function(x) {
   }
   
   for ( B in 1:2 ) {
-    rw <- 2*(A-1)+1
-    rB.sA1B <- sum( x[B,c(1,3)] )
-    rB.sA2B <- sum(x[B+2,c(1,3)] )
+    rB.sA1B <- sum( x[B,c(B,B+2)] )
+    rB.sA2B <- sum(x[B+2,c(B,B+2)] )
     nA1B <- sum(x[B,])
     nA2B <- sum(x[B+2,])
     
     p.s <- (rB.sA1B + rB.sA2B)/(nA1B + nA2B)
-    statistic[B+2] <- ((rB.sA2B/nA2B - rB.sA1B/nA1B)/
+    statistic[B+2] <- ((rB.sA1B/nA2B - rB.sA2B/nA1B)/
                          sqrt(p.s*(1-p.s)*(1/nA1B+1/nA2B)) )
   }
-  return(data.frame(stimulus=stimulus, statistic=statistic, 
-                    p.value= 2*(pmin(1-pnorm(statistic),pnorm(statistic))) ))
+  return(data.frame(response=response, z=round(statistic,3), 
+                    p.value= round(2*(pmin(1-pnorm(statistic),pnorm(statistic))),3) ))
 }
 
 
