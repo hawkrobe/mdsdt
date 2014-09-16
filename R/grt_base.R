@@ -379,7 +379,7 @@ n_by_n_fit.grt <- function (xx, pmap=NA, formula=x~., p0=NA, method=NA,
     print(round(dists,4))
     cat('Log likelihood =',bb[1],'\n')
   }
-  print(dists);  
+  #print(dists);  
   return(grt(dists,fit=fit,rcuts = xi,ccuts = eta));
 }
 
@@ -852,7 +852,7 @@ bsd.freq <- function (xi,eta,m,n=NULL) {
   pii <- matrix(nrow=nrow, ncol=ncol)
   cx <- matrix(c(1,rho,rho,1),2)
   for (i in 1:nrow) for (j in 1:ncol) 
-    pii[i,j] <- sadmvn(lower = c(Xi[i],Eta[j]), upper = c(Xi[i+1],Eta[j+1]),varcov=cx)
+    pii[i,j] <- sadmvn(lower = c(Xi[i],Eta[j]), upper = c(Xi[i+1],Eta[j+1]), mean = rep(0,2), varcov=cx)
   if (is.null(n)){
     Xis <- Xi[2:nrow]
     Etas <- Eta[2:ncol]
