@@ -335,7 +335,7 @@ freq2xtabs <- function(freq) {
   xdim = dim(freq)[1]; 
   ydim = dim(freq)[2];
   d = as.data.frame(matrix(rep(x=0,times=xdim*ydim*4), nrow = xdim*ydim, ncol = 4));
-  stimuli = c('aa','ab','ba','bb')
+  stimuli = if(length(rownames(freq)) > 0) rownames(freq) else c("aa", "ab", "ba", "bb")
   names(d) <- c("Stim", "L1", "L2", "x");
   for (i in 1:4) {
     for (j in 1:4) {
@@ -406,11 +406,10 @@ get_fit_params <- function(grt_obj) {
 }
 
 #' @export
-two_by_two_plot.grt <- function(fit_params, xlab1, ylab1, level = .5) {
+two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5) {
   bin_width= .05; # determines smoothness of marginal plots
-  #level = .5#c(.1, .1); # Determines which contour to plot
   ex = .25 # determines relative size of main plot and marginal plots
-  
+  fit_params = get_fit_params(obj)
   xlims = c(min(c(fit_params[[1]][1],fit_params[[2]][1],
                   fit_params[[3]][1],fit_params[[4]][1])-2.5),
             max(c(fit_params[[1]][1],fit_params[[2]][1],
@@ -422,6 +421,8 @@ two_by_two_plot.grt <- function(fit_params, xlab1, ylab1, level = .5) {
 
   x = seq(xlims[1],xlims[2],by=bin_width)
   y = seq(ylims[1],ylims[2],by=bin_width)
+  xra = xlims[2] - xlims[1]
+  yra = ylims[2] - ylims[1]
   
   # Plot Gaussian contours 
   old_mar <- par()$mar;
@@ -443,6 +444,13 @@ two_by_two_plot.grt <- function(fit_params, xlab1, ylab1, level = .5) {
     title(xlab = 'x', ylab = 'y');
   }
     
+  # Add labels inset at 10% of the total x and y range
+  labs = dimnames(obj$fit$obs)$Stim
+  text(xlims[1]+(xra * .1), ylims[1]+(yra * .1), labs[1])
+  text(xlims[1]+(xra * .1), ylims[2]-(yra * .1), labs[2])
+  text(xlims[2]-(xra * .1), ylims[1]+(yra * .1), labs[3])
+  text(xlims[2]-(xra * .1), ylims[2]-(yra * .1), labs[4])
+  
   # compute marginals
   margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
   for (i in 1:4) {

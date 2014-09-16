@@ -120,7 +120,7 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim
   llty=1;
   lcol='Black';
   if (length(x$fit$obs) == 16) {
-    two_by_two_plot.grt(get_fit_params(x), xlab, ylab, level = level);
+    two_by_two_plot.grt(x, xlab, ylab, level = level);
   }
   else {
     #require(mvtnorm);
