@@ -90,10 +90,16 @@ print.grt <- function (x, ...) {
 summary.grt <- function(object, ...) {
   print.grt(object)
   if (!is.null(fit <- object$fit)){
+    cat('\n')
     cat('Standard errors:\n')
     print(round(distribution.se(object),3))
-    print(GOF(object,teststat='AIC'))
-    cat('Log likelihood',fit$loglik,'\nConvergence code',fit$code,
+    cat('\n')
+    cat('Fit statistics:\n')
+    cat(c('Log likelihood: ',round(fit$loglik,2),'\n'))
+    cat(c('AIC: ',object$AIC,'\n'))
+    cat(c('AIC.c: ',object$AIC.c,'\n'))
+    cat(c('BIC: ',object$BIC,'\n'))
+    cat('\nConvergence code',fit$code,
         'in',fit$iter,'iterations\n')
   }
   invisible(object)
@@ -210,17 +216,28 @@ GOF <- function(bb,teststat='X2',observed=NULL){
     tstat <- 2*sum(observed*log(observed/ex))
   }
   if (test == 3){
-    k <- nrow(bb$dists)
-    print(k);
+    map = bb$fit$map
+    k = 0
+    for(i in 1:ncol(map)){
+      k = k + sum(unique(map[,i])>0)
+    }
     tstat <- 2*bb$fit$loglik + 2*k
   }
   if (test == 4){
-    k <- nrow(bb$dists)
+    map = bb$fit$map
+    k = 0
+    for(i in 1:ncol(map)){
+      k = k + sum(unique(map[,i])>0)
+    }
     n <- sum(observed)
     tstat <- 2*bb$fit$loglik + (2*k*(k+1))/(n-k-1)
   }
   if (test == 5){
-    k <- nrow(bb$dists)
+    map = bb$fit$map
+    k = 0
+    for(i in 1:ncol(map)){
+      k = k + sum(unique(map[,i])>0)
+    }
     n <- sum(observed)
     tstat <- 2*bb$fit$loglik + log(n)*k  }
   if (test < 3){
@@ -379,8 +396,12 @@ n_by_n_fit.grt <- function (xx, pmap=NA, formula=x~., p0=NA, method=NA,
     print(round(dists,4))
     cat('Log likelihood =',bb[1],'\n')
   }
-  #print(dists);  
-  return(grt(dists,fit=fit,rcuts = xi,ccuts = eta));
+  #print(dists);
+  output = grt(dists,fit=fit,rcuts = xi,ccuts = eta)
+  output[['AIC']] = GOF(output,'AIC')
+  output[['AIC.c']] = GOF(output,'AIC.c')
+  output[['BIC']] = GOF(output,'BIC')
+  return(output)
 }
 
 create_n_by_n_mod <- function(PS_x, PS_y, PI, from_2x2 = FALSE) {

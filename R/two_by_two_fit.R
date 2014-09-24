@@ -195,7 +195,11 @@ two_by_two_fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   fit <- list(obs=freq2xtabs(freq),fitted=freq2xtabs(prob), estimate=ps_new,
             expd2=E, map=create_n_by_n_mod(PS_x, PS_y, PI, from_2x2 = TRUE), iter=it, 
             loglik=nll);#, aic = aic, bic = bic, icomp = icomp)
-  return(grt(parameters, fit, 0, 0))  
+  output = grt(parameters, fit, 0, 0)
+  output[['AIC']] = GOF(output,'AIC')
+  output[['AIC.c']] = GOF(output,'AIC.c')
+  output[['BIC']] = GOF(output,'BIC')
+  return(output)
 }
 
 estimate_prob_and_var <- function(xpar,ypar,rpar,ps_old){
