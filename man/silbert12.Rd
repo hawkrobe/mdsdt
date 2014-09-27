@@ -1,6 +1,6 @@
 \name{silbert12}
 \alias{silbert12}
-\title{Phoneme confusion matrix for observer 3}
+\title{Phoneme confusion matrix}
 \format{A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses}
 \source{
   Silbert, N. H. (2012). Syllable structure and integration
@@ -11,7 +11,7 @@
 \description{
   Confusion matrix from speech perception experiment
   probing confusions between noise-masked tokens of English
-  [p],[b],[f], and [v]
+  [p],[b],[f], and [v] (observer 3 in Ref.)
 }
 \author{
   Noah H. Silbert

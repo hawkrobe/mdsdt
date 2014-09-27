@@ -1,11 +1,11 @@
-#' Tests sampling independence for each stimulus response distribution
+#' Tests report independence for each stimulus response distribution
 #'
 #' @param x four-by-four confusion matrix 
 #' @return data frame containing z-scores and p-values for all four tests
 #' @details If p value is sufficiently low, we're justified in rejecting the null hypothesis of sampling within that factor. p values come from a chi-squared test on the confusion matrix, as explaned in a footnote of Thomas (2001).
 #' @examples
 #' data(thomasA)
-#' siTest(thomasA)
+#' riTest(thomasA)
 #' @source
 #' Ashby, F. G., & Townsend, J. T. (1986). Varieties of perceptual independence. Psychological review, 93(2), 154.
 #'
@@ -13,7 +13,7 @@
 #'
 #' Silbert, N. H., & Thomas, R. D. (2013). Decisional separability, model identification, and statistical inference in the general recognition theory framework. Psychonomic bulletin & review, 20(1), 1-20.
 #' @export
-siTest <- function(x) {
+riTest <- function(x) {
   if(!checkConfusionMatrix(x)) {
     return(FALSE)
   }

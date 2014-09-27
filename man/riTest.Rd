@@ -1,6 +1,6 @@
-\name{siTest}
-\alias{siTest}
-\title{Tests sampling independence for each stimulus response distribution}
+\name{riTest}
+\alias{riTest}
+\title{Tests report independence for each stimulus response distribution}
 \source{
   Ashby, F. G., & Townsend, J. T. (1986). Varieties of
   perceptual independence. Psychological review, 93(2),
@@ -16,7 +16,7 @@
   Psychonomic bulletin & review, 20(1), 1-20.
 }
 \usage{
-  siTest(x)
+  riTest(x)
 }
 \arguments{
   \item{x}{four-by-four confusion matrix}
@@ -26,7 +26,7 @@
   tests
 }
 \description{
-  Tests sampling independence for each stimulus response
+  Tests report independence for each stimulus response
   distribution
 }
 \details{
@@ -38,6 +38,6 @@
 }
 \examples{
 data(thomasA)
-siTest(thomasA)
+riTest(thomasA)
 }
 

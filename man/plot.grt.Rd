@@ -1,6 +1,6 @@
 \name{plot.grt}
 \alias{plot.grt}
-\title{plot.grt}
+\title{Plot the object returned by fit.grt}
 \usage{
   \method{plot}{grt} (x, level = 0.5, xlab = NULL,
     ylab = NULL, ...)

@@ -23,7 +23,7 @@ NULL
 #' @description This data set contains a slightly coarse-grained version of Table 1 from Wickens and Olzak (1989). 
 #' For each of four possible combinations of stimuli, participants gave a graded confidence judgement (collapsed here to 1-4) on both dimensions concurrently.
 #' A rating of 1 corresponded to "definitely absent" and a rating of 4 corresponded to "definitely present".
-#' @usage data(thomasB)
+#' @usage data(wo89xt)
 #' @format an \code{xtabs} instance, containing counts for all stimulus-response combinations. 
 #' For each of 4 Stim levels (where NN = absent+absent, LN = low-frequency signal+absent, NH = absent+high-frequency signal, LH = low-frequency signal+high-frequency signal), 
 #' there is a 4x4 table giving the frequency of each rating.
@@ -32,10 +32,28 @@ NULL
 NULL
 
 #' @name silbert12
-#' @title Phoneme confusion matrix for observer 3
-#' @description Confusion matrix from speech perception experiment probing confusions between noise-masked tokens of English [p],[b],[f], and [v]
-#' @usage data(silbert14)
+#' @title Phoneme confusion matrix 
+#' @description Confusion matrix from speech perception experiment probing confusions between noise-masked tokens of English [p],[b],[f], and [v] (observer 3 in Ref.)
+#' @usage data(silbert12)
 #' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses
 #' @source Silbert, N. H. (2012). Syllable structure and integration of voicing and manner of articulation information in labial consonant identification. Journal of the Acoustical Society of America, 131(5), 4076-4086.
+#' @author Noah H. Silbert
+NULL
+
+#' @name silbert09a
+#' @title Frequency vs. Duration confusion matrix
+#' @description Confusion matrix from auditory perception experiment, in which listeners identified noise stimuli varying across frequency range and duration (Experiment 1, Observer 3 in Ref.)
+#' @usage data(silbert09a)
+#' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses
+#' @source Silbert, N. H., Townsend, J. T., & Lentz, J. J. (2009). Independence and separability in the perception of complex nonspeech sounds. Attention, Perception, & Psychophysics, 71(8), 1900-1915.
+#' @author Noah H. Silbert
+NULL
+
+#' @name silbert09b
+#' @title Pitch vs. Timbre confusion matrix
+#' @description Confusion matrix from auditory perception experiment, in which listeners identified 13-component harmonic stimuli varying across fundamental frequency and location of spectral prominence (Experiment 2, Observer 7 in Ref..
+#' @usage data(silbert09b)
+#' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses
+#' @source Silbert, N. H., Townsend, J. T., & Lentz, J. J. (2009). Independence and separability in the perception of complex nonspeech sounds. Attention, Perception, & Psychophysics, 71(8), 1900-1915.
 #' @author Noah H. Silbert
 NULL

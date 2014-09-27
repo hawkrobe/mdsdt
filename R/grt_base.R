@@ -105,8 +105,6 @@ summary.grt <- function(object, ...) {
   invisible(object)
 }
 
-#' plot.grt
-#' 
 #' Plot the object returned by fit.grt
 #' 
 #' @param x a grt object, as returned by fit.grt
