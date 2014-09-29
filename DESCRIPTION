@@ -1,6 +1,6 @@
 Package: mdsdt
-Version: 0.1
-Date: 2014-09-15
+Version: 1.0
+Date: 2014-09-27
 Title: Functions for Analysis of Data with General Recognition Theory
 Author: Robert X.D. Hawkins <rxdh@stanford.edu>, Joe Houpt
     <joseph.houpt@wright.edu>, Noah Silbert <noahpoah@gmail.com>, Leslie
@@ -13,12 +13,10 @@ Depends:
     mnormt,
     polycor
 Description: This package contains a series of tools associated with General
-    Recognition Theory, including Gaussian model fitting of 4x4 and more
+    Recognition Theory (Townsend & Ashby, 1986), including Gaussian model fitting of 4x4 and more
     general confusion matrices, associated plotting and model comparison tools,
-    and tests of Marginal Response Invariance and Sampling Independence.
+    and tests of marginal response invariance and report independence.
 License: GPL (>=2)
-iURL: http://r-project.org
 Collate:
     'grt-data.R'
-    'two_by_two_fit.R'
     'grt_base.R'
