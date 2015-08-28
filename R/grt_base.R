@@ -409,10 +409,25 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5) {
   
   # Add labels inset at 10% of the total x and y range
   labs = dimnames(obj$fit$obs)$Stim
-  text(xlims[1]+(xra * .1), ylims[1]+(yra * .1), labs[1])
-  text(xlims[1]+(xra * .1), ylims[2]-(yra * .1), labs[2])
-  text(xlims[2]-(xra * .1), ylims[1]+(yra * .1), labs[3])
-  text(xlims[2]-(xra * .1), ylims[2]-(yra * .1), labs[4])
+
+  # If we're using the default, we need to get subscripts in there...
+  newLabs <- vector("expression", 4)
+  if(isDefaultLabel(labs)) {
+    for(i in 1:4){
+      first = strsplit(substring(labs[i], 0, 3), "_")[[1]];
+      second = strsplit(substring(labs[i], 4, 6), "_")[[1]];
+      firstIndex = as.numeric(first[2]);
+      secondIndex = as.numeric(second[2]);
+      exp = eval(bquote(expression(.(first[1])[.(firstIndex)]~.(second[1])[.(secondIndex)])))
+      newLabs[i] = exp;
+    }
+  } else {
+    newLabs = labs;
+  }
+  text(xlims[1]+(xra * .1), ylims[1]+(yra * .1), newLabs[1])
+  text(xlims[1]+(xra * .1), ylims[2]-(yra * .1), newLabs[2])
+  text(xlims[2]-(xra * .1), ylims[1]+(yra * .1), newLabs[3])
+  text(xlims[2]-(xra * .1), ylims[2]-(yra * .1), newLabs[4])
   
   # compute marginals
   margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
@@ -440,7 +455,12 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5) {
   par(mar = old_mar, fig = c(0,1,0,1));
 }
 
-
+isDefaultLabel <- function(label) {
+  return(label[1] == "a_1b_1" 
+         & label[2] == "a_1b_2" 
+         & label[3] == "a_2b_1" 
+         & label[4] == "a_2b_2")
+}
 #' Goodness of fit tests
 #' 
 #' Includes a number of common goodness of fit measures to compare different models.
@@ -1467,6 +1487,8 @@ create_two_by_two_mod <- function(PS_x, PS_y ,PI) {
   return(mod);
 }
 
+defaultNames <- c("a_1b_1", "a_1b_2", "a_2b_1", "a_2b_2")
+
 # In 2x2 case, it's typical to use a 4x4 frequency matrix w/ each row being a stim
 # and each col being the freqency of responding "aa", "ab", "ba", "bb", respectively, 
 # to that stim. Wickens' code for nxn case requires data in xtabs format.
@@ -1474,7 +1496,7 @@ freq2xtabs <- function(freq) {
   xdim = dim(freq)[1]; 
   ydim = dim(freq)[2];
   d = as.data.frame(matrix(rep(x=0,times=xdim*ydim*4), nrow = xdim*ydim, ncol = 4));
-  stimuli = if(length(rownames(freq)) > 0) rownames(freq) else c("aa", "ab", "ba", "bb")
+  stimuli = if(length(rownames(freq)) > 0) rownames(freq) else defaultNames; 
   names(d) <- c("Stim", "L1", "L2", "x");
   for (i in 1:4) {
     for (j in 1:4) {
