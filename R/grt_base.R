@@ -507,6 +507,9 @@ GOF <- function(bb,teststat='X2',observed=NULL){
   }
   df <- length(observed) - dim(observed)[3] - df
   if (test == 1){
+    if(df == 0) {
+      warning("degrees of freedom = 0, so the resulting statistic is uninterpretable. Try using AIC or BIC instead.")
+    }
     tstat <- sum((observed-ex)^2/ex)}
   if (test == 2){
     ex <- ex[observed>0]; observed <- observed[observed>0]
