@@ -82,7 +82,7 @@ print.grt <- function (x, ...) {
 #' summary.grt
 #' 
 #' Summarize the object returned by fit.grt
-#' @param object An object retrned by fit.grt
+#' @param object An object returned by fit.grt
 #' @param ... additional arguments affecting the summary produced, as in the generic summary function
 #' @export
 summary.grt <- function(object, ...) {
@@ -833,14 +833,14 @@ linear.hypothesis <- function(b,m,c=0,set='means'){
 
 #' anova.grt
 #' 
-#' tests two grt objects against one another, in the order specified
-#' @param object An object retrned by fit.grt
-#' @param ... additional arguments affecting the summary produced, as in the generic summary function
+#' conducts a likelihood-ratio G-test on nested GRT models
+#' @param model1 A fitted GRT model returned by fit.grt
+#' @param model2 A larger GRT model, with model1 nested inside
 #' @export
-anova.grt <- function(b1,b2){
-  g21 <- GOF(b1,teststat='G2')
+anova.grt <- function(model1,model2){
+  g21 <- GOF(model1,teststat='G2')
   df1 <- attr(g21,'df')
-  g22 <- GOF(b2,teststat='G2')
+  g22 <- GOF(model22,teststat='G2')
   df2 <- attr(g22,'df')
   # p.val added 1.24.14 -NHS
   DG2 <- round(g21-g22,3)
@@ -848,7 +848,7 @@ anova.grt <- function(b1,b2){
   p.val <- round(pchisq(DG2,ddf,lower.tail=F),4)
   table <- matrix(c(round(g21,3),round(g22,3),df1,df2,'',
                     DG2,'',ddf,'',p.val),2)
-  dimnames(table) <- list(c(substitute(b1),substitute(b2)),
+  dimnames(table) <- list(c(substitute(model1),substitute(model2)),
                           c('G2', 'df', 'DG2', 'df','p-val'))
   as.table(table)
 }
