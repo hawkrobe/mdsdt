@@ -28,7 +28,7 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' 
 #' @param freq Can be entered in two ways: 1) a 4x4 confusion matrix containing counts, 
 #' with each row corresponding to a stimulus and each column corresponding to a response. 
-#' row/col order must be aa, ab, ba, bb. 
+#' row/col order must be a_1b_1, a_1b_2, a_2b_1, a_2b_2. 
 #' 2) A three-way 'xtabs' table with the stimuli as the third index and the 
 #' NxN possible responses as the first two indices.
 #' @param PS_x if TRUE, will fit model with assumption of perceptual separability on the x dimension
@@ -68,7 +68,6 @@ fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
 #' print.grt
 #' 
 #' Print the object returned by fit.grt
-#' @method print grt
 #' @param x An object returned by fit.grt 
 #' @param ... further arguments passed to or from other methods, as in the generic print function
 #' @export
@@ -83,7 +82,6 @@ print.grt <- function (x, ...) {
 #' summary.grt
 #' 
 #' Summarize the object returned by fit.grt
-#' @method summary grt
 #' @param object An object retrned by fit.grt
 #' @param ... additional arguments affecting the summary produced, as in the generic summary function
 #' @export
@@ -112,7 +110,6 @@ summary.grt <- function(object, ...) {
 #' @param xlab optional label for the x axis (defaults to NULL)
 #' @param ylab optional label for the y axis (defaults to NULL)
 #' @param ... Arguments to be passed to methods, as in generic plot function
-#' @method plot grt
 #' @export
 plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim.sc added 1.24.14
 #                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
@@ -461,6 +458,7 @@ isDefaultLabel <- function(label) {
          & label[3] == "a_2b_1" 
          & label[4] == "a_2b_2")
 }
+
 #' Goodness of fit tests
 #' 
 #' Includes a number of common goodness of fit measures to compare different models.
@@ -833,7 +831,12 @@ linear.hypothesis <- function(b,m,c=0,set='means'){
 }
 
 
-# Comparison of models
+#' anova.grt
+#' 
+#' tests two grt objects against one another, in the order specified
+#' @param object An object retrned by fit.grt
+#' @param ... additional arguments affecting the summary produced, as in the generic summary function
+#' @export
 anova.grt <- function(b1,b2){
   g21 <- GOF(b1,teststat='G2')
   df1 <- attr(g21,'df')
