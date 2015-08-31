@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt_base.R
 \name{summary.grt}
 \alias{summary.grt}
-\title{summary.grt}
+\title{Summarize the object returned by fit.grt}
 \usage{
 \method{summary}{grt}(object, ...)
 }

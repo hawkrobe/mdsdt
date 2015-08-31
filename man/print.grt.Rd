@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt_base.R
 \name{print.grt}
 \alias{print.grt}
-\title{print.grt}
+\title{Print the object returned by fit.grt}
 \usage{
 \method{print}{grt}(x, ...)
 }

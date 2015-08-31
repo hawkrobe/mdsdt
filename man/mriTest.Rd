@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt_base.R
 \name{mriTest}
 \alias{mriTest}
-\title{Tests marginal response invariance at both levels on each dimension}
+\title{Test marginal response invariance}
 \source{
 Ashby, F. G., & Townsend, J. T. (1986). Varieties of perceptual independence. Psychological review, 93(2), 154.
 

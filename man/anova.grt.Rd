@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt_base.R
 \name{anova.grt}
 \alias{anova.grt}
-\title{anova.grt}
+\title{Compare nested GRT models}
 \usage{
 \method{anova}{grt}(model1, model2)
 }
@@ -12,6 +12,6 @@
 \item{model2}{A larger GRT model, with model1 nested inside}
 }
 \description{
-conducts a likelihood-ratio G-test on nested GRT models
+Conducts a likelihood-ratio G-test on nested GRT models.
 }
 

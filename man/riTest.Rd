@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt_base.R
 \name{riTest}
 \alias{riTest}
-\title{Tests report independence for each stimulus response distribution}
+\title{Test report independence}
 \source{
 Ashby, F. G., & Townsend, J. T. (1986). Varieties of perceptual independence. Psychological review, 93(2), 154.
 
@@ -20,7 +20,7 @@ riTest(x)
 data frame containing z-scores and p-values for all four tests
 }
 \description{
-Tests report independence for each stimulus response distribution
+Test report independence for each stimulus response distribution
 }
 \details{
 If p value is sufficiently low, we're justified in rejecting the null hypothesis of sampling within that factor. p values come from a chi-squared test on the confusion matrix, as explaned in a footnote of Thomas (2001).

@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt_base.R
 \name{GOF}
 \alias{GOF}
-\title{Goodness of fit tests}
+\title{Conduct goodness of fit tests}
 \usage{
 GOF(bb, teststat = "X2", observed = NULL)
 }
