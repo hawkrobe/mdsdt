@@ -65,8 +65,6 @@ fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   }
 }
 
-#' print.grt
-#' 
 #' Print the object returned by fit.grt
 #' @param x An object returned by fit.grt 
 #' @param ... further arguments passed to or from other methods, as in the generic print function
@@ -79,8 +77,6 @@ print.grt <- function (x, ...) {
   invisible(x)
 }
 
-#' summary.grt
-#' 
 #' Summarize the object returned by fit.grt
 #' @param object An object returned by fit.grt
 #' @param ... additional arguments affecting the summary produced, as in the generic summary function
@@ -159,7 +155,9 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim
   }
 }
 
-#' Tests report independence for each stimulus response distribution
+#' Test report independence 
+#' 
+#' Test report independence for each stimulus response distribution
 #'
 #' @param x four-by-four confusion matrix 
 #' @return data frame containing z-scores and p-values for all four tests
@@ -193,6 +191,8 @@ riTest <- function(x) {
                     p.value=round(1-pchisq(statistic, 1),3)))
 }
 
+#' Test marginal response invariance
+#' 
 #' Tests marginal response invariance at both levels on each dimension
 #'
 #' @param x four-by-four confusion matrix 
@@ -459,7 +459,7 @@ isDefaultLabel <- function(label) {
          & label[4] == "a_2b_2")
 }
 
-#' Goodness of fit tests
+#' Conduct goodness of fit tests
 #' 
 #' Includes a number of common goodness of fit measures to compare different models.
 #' 
@@ -528,7 +528,8 @@ GOF <- function(bb,teststat='X2',observed=NULL){
       k = k + sum(unique(map[,i])>0)
     }
     n <- sum(observed)
-    tstat <- 2*bb$fit$loglik + (2*k*(k+1))/(n-k-1)
+    aicStat <- 2*bb$fit$loglik + 2k
+    tstat <- aicStat + (2*k*(k+1))/(n-k-1)
   }
   if (test == 5){
     map = bb$fit$map
@@ -831,9 +832,10 @@ linear.hypothesis <- function(b,m,c=0,set='means'){
 }
 
 
-#' anova.grt
+#' Compare nested GRT models
 #' 
-#' conducts a likelihood-ratio G-test on nested GRT models
+#' Conducts a likelihood-ratio G-test on nested GRT models.
+#' 
 #' @param model1 A fitted GRT model returned by fit.grt
 #' @param model2 A larger GRT model, with model1 nested inside
 #' @export
