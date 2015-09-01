@@ -1,5 +1,8 @@
 #' @import ellipse mnormt polycor
 
+#' @importFrom graphics abline box lines mtext par plot points text title
+#' @importFrom stats coef constrOptim dnorm lm pchisq pnorm qnorm vcov xtabs
+
 # S3 grt object
 # 
 # Constructor for a grt fit object, containing information about estimated parameters and likelihoods
