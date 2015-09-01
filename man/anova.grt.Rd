@@ -4,14 +4,14 @@
 \alias{anova.grt}
 \title{Compare nested GRT models}
 \usage{
-\method{anova}{grt}(model1, model2)
+\method{anova}{grt}(object, ...)
 }
 \arguments{
-\item{model1}{A fitted GRT model returned by fit.grt}
+\item{object}{A fitted GRT model returned by fit.grt}
 
-\item{model2}{A larger GRT model, with model1 nested inside}
+\item{...}{A larger GRT model, with model1 nested inside}
 }
 \description{
-Conducts a likelihood-ratio G-test on nested GRT models.
+Conducts a likelihood-ratio G-test on nested GRT models. Currently only accepts pairs of nested models, not arbitrary sequences.
 }
 

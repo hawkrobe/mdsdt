@@ -4,10 +4,10 @@
 \alias{GOF}
 \title{Conduct goodness of fit tests}
 \usage{
-GOF(bb, teststat = "X2", observed = NULL)
+GOF(grtMod, teststat = "X2", observed = NULL)
 }
 \arguments{
-\item{bb}{a \code{grt} object}
+\item{grtMod}{a \code{grt} object}
 
 \item{teststat}{a string indicating which statistic to use in the test.
 May be one of the following:
@@ -21,7 +21,7 @@ May be one of the following:
 \item{observed}{optional, to provide a matrix of observed frequencies if no fit conducted.}
 }
 \description{
-Includes a number of common goodness of fit measures to compare different models.
+Includes a number of common goodness of fit measures to compare different GRT models.
 }
 \examples{
 data(thomasA)
