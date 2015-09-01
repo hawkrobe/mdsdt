@@ -9,7 +9,7 @@ Author: Robert X.D. Hawkins <rxdh@stanford.edu>, Joe Houpt
 Maintainer: Robert X.D. Hawkins <rxdh@stanford.edu>
 Depends:
     R (>= 1.8.0), ellipse, mnormt, polycor
-Description: This package contains a series of tools associated with General
+Description: Tools associated with General
     Recognition Theory (Townsend & Ashby, 1986), including Gaussian model fitting of 4x4 and more
     general confusion matrices, associated plotting and model comparison tools,
     and tests of marginal response invariance and report independence.
