@@ -61,12 +61,12 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' GOF(grt_obj, teststat = 'AIC');
 #' GOF(grt_obj_PS, teststat = 'AIC');
 #' @export
-fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
+fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none', method=NA) {
   if (length(freq) == 16) {
     return(two_by_two_fit.grt(freq, PS_x, PS_y, PI))
   } else {
-    n_by_nmap <- create_n_by_n_mod(PS_x, PS_y, PI);
-    return(n_by_n_fit.grt(freq, pmap=n_by_nmap))
+    n_by_nmap <- create_n_by_n_mod(freq,PS_x, PS_y, PI);
+    return(n_by_n_fit.grt(freq, pmap=n_by_nmap, method=method))
   }
 }
 
@@ -358,7 +358,7 @@ two_by_two_fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
   bic = npar*log(sum(freq)) - 2*loglike;
   icomp = -loglike + (npar/2)*log(tr(info_mat)/npar)- .5*log(det(info_mat));
   fit <- list(obs=freq2xtabs(freq),fitted=freq2xtabs(prob), estimate=ps_new,
-              expd2=E, map=create_n_by_n_mod(PS_x, PS_y, PI, from_2x2 = TRUE), iter=it, 
+              expd2=E, map=create_n_by_n_mod(freq, PS_x, PS_y, PI, from_2x2 = TRUE), iter=it, 
               loglik=nll);#, aic = aic, bic = bic, icomp = icomp)
   output = grt(parameters, fit, 0, 0)
   output[['AIC']] = GOF(output,'AIC')
@@ -555,7 +555,7 @@ GOF <- function(grtMod,teststat='X2',observed=NULL){
 #     1)  A three-way 'xtabs' table with the stimulis as the third index
 #     2)  A data frame contiaing the three indices with condition last,
 #         and frequencies as the variable 'x' (see 'form' if not this way)
-# pmap:     Parameter-mapping array (default: complete parameteriation)
+# pmap:     Parameter-mapping array (default: complete parameterization)
 # form:     A formula to convert a data frame (default x~.)
 # p0:       Initial point---calculated if not given
 # verbose:  Whether to print results (default FALSE)
@@ -574,6 +574,7 @@ n_by_n_fit.grt <- function (xx, pmap=NA, formula=x~., p0=NA, method=NA,
     stop('First argument must be data frame or contingency table')
   #  if (!(is.na(method) || (method == 0) || (method == 1)))
   #     stop('Method must be NA, 0, or 1')
+  xx = xx + 1 # protection against zeros, which causes problems with the algorithm
   dxx <- dim(xx)
   if (length(dxx) != 3) stop('Table must have dimension 3')
   KK <- dxx[3];
@@ -706,25 +707,45 @@ n_by_n_fit.grt <- function (xx, pmap=NA, formula=x~., p0=NA, method=NA,
   return(output)
 }
 
-create_n_by_n_mod <- function(PS_x, PS_y, PI, from_2x2 = FALSE) {
-  # Each row is distribution, cols are x_mean, x_std, y_mean, y_std, rho
-  map <- matrix(data = 0, nrow = 4, ncol= 5)
-  if (PS_x) { 
-    map[2,1:2] <- map[4,1:2] <- c(1,1); 
-  } else for (i in 1:4) map[i,1:2] <- c(i-1,i-1);
+create_n_by_n_mod <- function(freq=NULL, PS_x=F, PS_y=F, PI="none", from_2x2 = FALSE) {
+  # Each row is distribution, cols are y_mean, y_std, x_mean, x_std, rho
+  if(from_2x2 | length(freq)==16){
+    nst = 4
+  }else{
+    nst = dim(freq)[3]
+  }
+  # number of stimulus levels per dimension
+  # assumes equal numbers of levels on each dimension
+  nspd = sqrt(nst) 
+  map <- matrix(data = 0, nrow = nst, ncol= 5)
   if (PS_y) {
-    map[3,3:4] <- map[4,3:4] <- c(1,1);
-  } else for (i in 1:4) map[i,3:4] <- c(i-1,i-1);
+    for(si in seq(2,nspd)){
+      for(ri in seq(si,nst,nspd)){
+        map[ri,1:2] <- c(si-1,si-1)
+      }
+    }
+  } else for (i in 1:nst) map[i,1:2] <- c(i-1,i-1);
+  if (PS_x) {
+    ci = seq(nspd+1,nst,nspd)
+    for(si in seq(1,nspd-1)){
+      qi = ci[si]
+      for(ri in seq(qi,qi+nspd-1)){
+        map[ri,3:4] <- c(si,si)
+      }
+    }
+  } else for (i in 1:nst) map[i,3:4] <- c(i-1,i-1);
   if (PI == 'same_rho') {
-    for (i in 1:4) map[i,5] <- 1;
+    for (i in 1:nst) map[i,5] <- 1;
   } else if (PI == 'none') {
-    for (i in 1:4) map[i,5] <- i;
+    for (i in 1:nst) map[i,5] <- i;
   } 
   if (from_2x2) {
     map[,c(1,3)] = map[,c(1,3)] + 1;
     map[,c(2,4)] = c(0,0,0,0);
   }
-  return(map);
+  colnames(map) <- c("nu","tau","mu","sigma","rho")
+  print(map)
+  return(map)
 }
 
 
