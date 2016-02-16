@@ -112,7 +112,7 @@ summary.grt <- function(object, ...) {
 #' @param ylab optional label for the y axis (defaults to NULL)
 #' @param ... Arguments to be passed to methods, as in generic plot function
 #' @export
-plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim.sc added 1.24.14
+plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F,...) {#lim.sc=2, # lim.sc added 1.24.14
 #                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
   lim.sc=2;
   connect=NULL;
@@ -122,9 +122,8 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, ...) {#lim.sc=2, # lim
   llty=1;
   lcol='Black';
   if (length(x$fit$obs) == 16) {
-    two_by_two_plot.grt(x, xlab, ylab, level = level);
-  }
-  else {
+    two_by_two_plot.grt(x, xlab, ylab, level = level, marginals=marginals);
+  } else {
     #require(mvtnorm);
     main=deparse(substitute(x))
     xc <- x$colcuts
@@ -369,9 +368,8 @@ two_by_two_fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
 
 
 
-two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5) {
+two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5, marginals=F) {
   bin_width= .05; # determines smoothness of marginal plots
-  ex = .25 # determines relative size of main plot and marginal plots
   fit_params = get_fit_params(obj)
   xlims = c(min(c(fit_params[[1]][1],fit_params[[2]][1],
                   fit_params[[3]][1],fit_params[[4]][1])-2.5),
@@ -389,22 +387,31 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5) {
   
   # Plot Gaussian contours 
   old_mar <- par()$mar;
-  par(fig=c(ex,1,ex,1), mai=rep(.05,4),pty="m",xaxt="n",yaxt="n")
+  if(marginals){
+    ex = .25
+    xlb = ""
+    ylb = ""
+    par(fig=c(ex,1,ex,1), mai=rep(.05,4),pty="m",xaxt="n",yaxt="n")
+  }else{
+    xlb = xlab1
+    ylb = ylab1
+    par(fig=c(.05,1,.05,1), mar=c(4,4,0.5,0.5),pty="m",xaxt="n",yaxt="n")
+  }
   # need to take into account optional marginal plots for x/y labs?
   # currently assumes marginals will be plotted, so no x/y labs
-  plot(0,0,type="n",xlim=xlims,ylim=ylims,xlab="",ylab="",main="",axes=F)
+  plot(0,0,type="n",xlim=xlims,ylim=ylims,xlab=xlb,ylab=ylb,main="",axes=F)
   box(which="plot",mai=rep(0,4))
   # Plot decision bounds
   abline(h=0);
   abline(v=0);
   for (i in 1:4) {
-    cond = fit_params[[i]];
-    cov <- matrix(data=c(1, cond[3], cond[3], 1), nrow = 2);
+    cond = fit_params[[i]]
+    cov <- matrix(data=c(1, cond[3], cond[3], 1), nrow = 2)
     mu = cond[1:2]
-    par(new = TRUE);
+    par(new = TRUE)
     lines(ellipse(cov,centre=mu,level=level))
-    points(cond[1], cond[2], pch = '+');
-    title(xlab = 'x', ylab = 'y');
+    points(cond[1], cond[2], pch = '+')
+    title(xlab = xlb, ylab = ylb)
   }
   
   # Add labels inset at 10% of the total x and y range
@@ -428,28 +435,30 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5) {
   text(xlims[1]+(xra * .1), ylims[2]-(yra * .1), newLabs[2])
   text(xlims[2]-(xra * .1), ylims[1]+(yra * .1), newLabs[3])
   text(xlims[2]-(xra * .1), ylims[2]-(yra * .1), newLabs[4])
-  
-  # compute marginals
-  margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
-  for (i in 1:4) {
-    cond = fit_params[[i]];
-    margx[[i]] = (1 / sqrt(2*pi)) * exp(-.5*((x-cond[1]))^2);
-    margy[[i]] = (1 / sqrt(2*pi)) * exp(-.5*((y-cond[2]))^2);
+
+  if(marginals){
+    # compute marginals
+    margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
+    for (i in 1:4) {
+      cond = fit_params[[i]];
+      margx[[i]] = (1 / sqrt(2*pi)) * exp(-.5*((x-cond[1]))^2);
+      margy[[i]] = (1 / sqrt(2*pi)) * exp(-.5*((y-cond[2]))^2);
+    }
+    
+    # Plot X marginals
+    par(fig=c(ex,1,0,ex), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+    plot(x,margx$aa,type='l', lty=1, xlab = xlab1, ylab = NULL);
+    lines(x,margx$ab,type='l',lty=2);
+    lines(x,margx$ba,type='l',lty=1);
+    lines(x,margx$bb,type='l',lty=2);
+    
+    # Plot Y marginals
+    par(fig=c(0,ex,ex,1), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+    plot(margy$aa,y,type='l', lty=1, xlab = NULL, ylab = ylab1);
+    lines(margy$ab,y, type='l',lty=1);
+    lines(margy$ba,y,type='l',lty=2);
+    lines(margy$bb,y,type='l',lty=2);
   }
-  
-  # Plot X marginals
-  par(fig=c(ex,1,0,ex), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-  plot(x,margx$aa,type='l', lty=1, xlab = xlab1, ylab = NULL);
-  lines(x,margx$ab,type='l',lty=2);
-  lines(x,margx$ba,type='l',lty=1);
-  lines(x,margx$bb,type='l',lty=2);
-  
-  # Plot Y marginals
-  par(fig=c(0,ex,ex,1), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-  plot(margy$aa,y,type='l', lty=1, xlab = NULL, ylab = ylab1);
-  lines(margy$ab,y, type='l',lty=1);
-  lines(margy$ba,y,type='l',lty=2);
-  lines(margy$bb,y,type='l',lty=2);
   
   # Reset graphical par for later
   par(mar = old_mar, fig = c(0,1,0,1));
@@ -744,7 +753,7 @@ create_n_by_n_mod <- function(freq=NULL, PS_x=F, PS_y=F, PI="none", from_2x2 = F
     map[,c(2,4)] = c(0,0,0,0);
   }
   colnames(map) <- c("nu","tau","mu","sigma","rho")
-  print(map)
+  #print(map)
   return(map)
 }
 
