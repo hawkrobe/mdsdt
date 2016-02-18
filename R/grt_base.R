@@ -112,9 +112,9 @@ summary.grt <- function(object, ...) {
 #' @param ylab optional label for the y axis (defaults to NULL)
 #' @param ... Arguments to be passed to methods, as in generic plot function
 #' @export
-plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F,...) {#lim.sc=2, # lim.sc added 1.24.14
+plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main="", plot.mu=T,...) {
 #                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
-  lim.sc=2;
+  lim.sc=1
   connect=NULL;
   names=NULL;
   clty=1;
@@ -125,7 +125,7 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F,...) {#lim
     two_by_two_plot.grt(x, xlab, ylab, level = level, marginals=marginals);
   } else {
     #require(mvtnorm);
-    main=deparse(substitute(x))
+    #main=deparse(substitute(x))
     xc <- x$colcuts
     yc <- x$rowcuts
     dd <- x$dists
@@ -141,6 +141,7 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F,...) {#lim
     if (is.null(ylab)) ylab <- if(is.null(x$fit)) 'X' else
       names(dimnames(x$fit$obs)[1])
     # axes=F, box(which="plot") added 1.24.14
+    par(fig=c(0,1,0,1),mar=c(2.25,2.25,0.25,0.25))
     plot(X,Y,type='n',main=main,xlab="",ylab="",axes=F,...)
     mtext(text=xlab,side=1,line=1)
     mtext(text=ylab,side=2,line=1)
@@ -150,6 +151,9 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F,...) {#lim
     for (i in 1:dim(dd)[1]) {
       v <- matrix(c(sx[i]^2,rep(sx[i]*sy[i]*rho[i],2),sy[i]^2),2)
       lines(ellipse(v,centre=c(mx[i],my[i]),level=level))
+      if(plot.mu){
+        points(mx[i],my[i],pch=3)
+      }
     } 
     if (!is.null(connect[1])) 
       lines(mx[c(connect,connect[1])],my[c(connect,connect[1])],
