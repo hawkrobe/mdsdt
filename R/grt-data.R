@@ -57,3 +57,25 @@ NULL
 #' @source Silbert, N. H., Townsend, J. T., & Lentz, J. J. (2009). Independence and separability in the perception of complex nonspeech sounds. Attention, Perception, & Psychophysics, 71(8), 1900-1915.
 #' @author Noah H. Silbert
 NULL
+
+#' @name thomas15a
+#' @title 3x3 face recognition confusion matrix for Observer A
+#' @description This data set contains the results of a 3x3 full-report face recognition experiment reported in Thomas et al (2015). The two channels are degree of eye separation and nose width, with three levels on each dimension.
+#' @docType data
+#' @usage data(thomas15a)
+#' @format an \code{xtabs} instance, containing counts for all stimulus-response combinations. 
+#' The first two dimensions consist of the response counts on each level of nose width and eye separation, respectively, and the third dimension indexes the stimulus.
+#' @source Thomas, R. D., Altieri, N. A., Silbert, N. H., Wenger, M. J., & Wessels, P. M. (2015). Multidimensional signal detection decision models of the uncertainty task: Application to face perception. Journal of Mathematical Psychology, 66, 16-33.
+#' @author Robin D. Thomas 
+NULL
+
+#' @name thomas15b
+#' @title 3x3 face recognition confusion matrix for Observer B
+#' @description This data set contains the results of a 3x3 full-report face recognition experiment reported in Thomas et al (2015). The two channels are degree of eye separation and nose width, with three levels on each dimension.
+#' @docType data
+#' @usage data(thomas15b)
+#' @format an \code{xtabs} instance, containing counts for all stimulus-response combinations. 
+#' The first two dimensions consist of the response counts on each level of nose width and eye separation, respectively, and the third dimension indexes the stimulus.
+#' @source Thomas, R. D., Altieri, N. A., Silbert, N. H., Wenger, M. J., & Wessels, P. M. (2015). Multidimensional signal detection decision models of the uncertainty task: Application to face perception. Journal of Mathematical Psychology, 66, 16-33.
+#' @author Robin D. Thomas 
+NULL
