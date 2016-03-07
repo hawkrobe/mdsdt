@@ -33,8 +33,8 @@ Standard case uses confusion matrix from a 2x2 full-report identification experi
 }
 \examples{
 # Fit unconstrained model
-data(thomasB);
-grt_obj <- fit.grt(thomasB);
+data(thomas01b);
+grt_obj <- fit.grt(thomas01b);
 
 # Use standard S3 generics to examine
 print(grt_obj);
@@ -42,7 +42,7 @@ summary(grt_obj);
 plot(grt_obj);
 
 # Fit model with assumption of perceptual separability on both dimensions
-grt_obj_PS <- fit.grt(thomasB, PS_x = TRUE, PS_y = TRUE);
+grt_obj_PS <- fit.grt(thomas01b, PS_x = TRUE, PS_y = TRUE);
 summary(grt_obj_PS);
 plot(grt_obj_PS);
 

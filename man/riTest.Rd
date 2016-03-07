@@ -26,7 +26,7 @@ Test report independence for each stimulus response distribution
 If p value is sufficiently low, we're justified in rejecting the null hypothesis of sampling within that factor. p values come from a chi-squared test on the confusion matrix, as explaned in a footnote of Thomas (2001).
 }
 \examples{
-data(thomasA)
-riTest(thomasA)
+data(thomas01a)
+riTest(thomas01a)
 }
 

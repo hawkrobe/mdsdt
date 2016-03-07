@@ -30,7 +30,7 @@ Similarly for the y dimension.
 The estimator is derived in a footnote of Thomas (2001).
 }
 \examples{
-data(thomasA)
-mriTest(thomasA)
+data(thomas01a)
+mriTest(thomas01a)
 }
 

@@ -24,9 +24,9 @@ May be one of the following:
 Includes a number of common goodness of fit measures to compare different GRT models.
 }
 \examples{
-data(thomasA)
-fit1 <- fit.grt(thomasA)
-fit2 <- fit.grt(thomasA, PI = 'same_rho')
+data(thomas01a)
+fit1 <- fit.grt(thomas01a)
+fit2 <- fit.grt(thomas01a, PI = 'same_rho')
 
 # Take the model with the lower AIC
 GOF(fit1, teststat = 'AIC')
