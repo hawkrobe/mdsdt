@@ -20,15 +20,16 @@
 #  rcuts: Optional cutpoints for the rows
 #  ccuts: Optional cutpoints for the columns
 grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
-  if (is.null(colnames(dists)))
+  if (is.null(colnames(dists))) {
     colnames(dists) <- c('mu_r','sd_r','mu_c','sd_c','rho')
+  }
   structure(list(dists=dists,fit=fit, rowcuts=rcuts, colcuts=ccuts),
             class = 'grt')
 }
 
 #' Fit full Gaussian GRT model
 #' 
-#' Use Newton-Raphson gradient descent to fit the mean and covariance of a bivariate Gaussian distribution for each stimulus class, subject to given constraints. 
+#' Fit the mean and covariance of a bivariate Gaussian distribution for each stimulus class, subject to given constraints. 
 #' Standard case uses confusion matrix from a 2x2 full-report identification experiment, but will also work in designs with N levels of confidence associated with each dimension (e.g. in Wickens, 1992).
 #' 
 #' @param freq Can be entered in two ways: 1) a 4x4 confusion matrix containing counts, 
@@ -36,11 +37,13 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' row/col order must be a_1b_1, a_1b_2, a_2b_1, a_2b_2. 
 #' 2) A three-way 'xtabs' table with the stimuli as the third index and the 
 #' NxN possible responses as the first two indices.
-#' @param PS_x if TRUE, will fit model with assumption of perceptual separability on the x dimension
-#' @param PS_y if TRUE, will fit model with assumption of perceptual separability on the y dimension
+#' @param PS_x if TRUE, will fit model with assumption of perceptual separability on the x dimension (FALSE by default)
+#' @param PS_y if TRUE, will fit model with assumption of perceptual separability on the y dimension (FALSE by default)
 #' @param PI 'none' by default, imposing no restrictions and fitting different correlations for all distributions. 
 #' If 'same_rho', will constrain all distributions to have same correlation parameter. 
 #' If 'all', will constain all distribution to have 0 correlation. 
+#' @param method The optimization method used to fit the Gaussian model. Newton-Raphson gradient descent by default, but
+#' may also specify any method available in \code{\link[stats]{optim}}, e.g. "BFGS".
 #' @return An S3 \code{grt} object
 #' @examples 
 #' # Fit unconstrained model
@@ -110,9 +113,11 @@ summary.grt <- function(object, ...) {
 #' @param level number between 0 and 1 indicating which contour to plot (defaults to .5)
 #' @param xlab optional label for the x axis (defaults to NULL)
 #' @param ylab optional label for the y axis (defaults to NULL)
+#' @param marginals Boolean specifying whether marginals should be plotted 
+#' @param main 
 #' @param ... Arguments to be passed to methods, as in generic plot function
 #' @export
-plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main="", plot.mu=T,...) {
+plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main = "", plot.mu=T,...) {
 #                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
   lim.sc=1
   connect=NULL;
@@ -122,7 +127,9 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main="", 
   llty=1;
   lcol='Black';
   if (length(x$fit$obs) == 16) {
-    two_by_two_plot.grt(x, xlab, ylab, level = level, marginals=marginals);
+    two_by_two_plot.grt(x, xlab, ylab, level = level, 
+                        marginals=marginals, main = main, 
+                        plot.mu = plot.mu);
   } else {
     #require(mvtnorm);
     #main=deparse(substitute(x))
@@ -136,9 +143,9 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main="", 
     max.ax <- max(max(mx+lim.sc*sx),max(my+lim.sc*sy))
     X <- c(min.ax,max.ax)
     Y <- c(min.ax,max.ax)
-    if (is.null(xlab)) xlab <- if(is.null(x$fit)) 'Y' else
+    if (is.null(xlab)) xlab <- if(is.null(x$fit)) 'A' else
       names(dimnames(x$fit$obs)[2])
-    if (is.null(ylab)) ylab <- if(is.null(x$fit)) 'X' else
+    if (is.null(ylab)) ylab <- if(is.null(x$fit)) 'B' else
       names(dimnames(x$fit$obs)[1])
     # axes=F, box(which="plot") added 1.24.14
     par(fig=c(0,1,0,1),mar=c(2.25,2.25,0.25,0.25))
@@ -372,7 +379,8 @@ two_by_two_fit.grt <- function(freq, PS_x = FALSE, PS_y = FALSE, PI = 'none') {
 
 
 
-two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5, marginals=F) {
+two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5, 
+                                marginals=F, main = "", plot.mu = T) {
   bin_width= .05; # determines smoothness of marginal plots
   fit_params = get_fit_params(obj)
   xlims = c(min(c(fit_params[[1]][1],fit_params[[2]][1],
@@ -388,7 +396,12 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5, marginals=F) {
   y = seq(ylims[1],ylims[2],by=bin_width)
   xra = xlims[2] - xlims[1]
   yra = ylims[2] - ylims[1]
-  
+  if (is.null(xlab)) {
+    xlab <- "A";
+  }
+  if (is.null(ylab)) {
+    ylab <- "B";
+  }
   # Plot Gaussian contours 
   old_mar <- par()$mar;
   if(marginals){
@@ -397,8 +410,8 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5, marginals=F) {
     ylb = ""
     par(fig=c(ex,1,ex,1), mai=rep(.05,4),pty="m",xaxt="n",yaxt="n")
   }else{
-    xlb = xlab1
-    ylb = ylab1
+    xlb = xlab
+    ylb = ylab
     par(fig=c(.05,1,.05,1), mar=c(4,4,0.5,0.5),pty="m",xaxt="n",yaxt="n")
   }
   # need to take into account optional marginal plots for x/y labs?
@@ -441,6 +454,7 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5, marginals=F) {
   text(xlims[2]-(xra * .1), ylims[2]-(yra * .1), newLabs[4])
 
   if(marginals){
+    print("plotting marginals");
     # compute marginals
     margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
     for (i in 1:4) {
@@ -451,14 +465,14 @@ two_by_two_plot.grt <- function(obj, xlab1, ylab1, level = .5, marginals=F) {
     
     # Plot X marginals
     par(fig=c(ex,1,0,ex), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-    plot(x,margx$aa,type='l', lty=1, xlab = xlab1, ylab = NULL);
+    plot(x,margx$aa,type='l', lty=1, xlab = xlab, ylab = NULL);
     lines(x,margx$ab,type='l',lty=2);
     lines(x,margx$ba,type='l',lty=1);
     lines(x,margx$bb,type='l',lty=2);
     
     # Plot Y marginals
     par(fig=c(0,ex,ex,1), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
-    plot(margy$aa,y,type='l', lty=1, xlab = NULL, ylab = ylab1);
+    plot(margy$aa,y,type='l', lty=1, xlab = NULL, ylab = ylab);
     lines(margy$ab,y, type='l',lty=1);
     lines(margy$ba,y,type='l',lty=2);
     lines(margy$bb,y,type='l',lty=2);
