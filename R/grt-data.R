@@ -1,18 +1,18 @@
-#' @name thomasA
-#' @title Face recognition confusion matrix for Observer A
+#' @name thomas01a
+#' @title 2x2 face recognition confusion matrix for Observer A
 #' @description This data set contains the results of a full-report face recognition experiment reported in Thomas (2001). For Observer A, the two channels are degree of eye separation and nose length. 
 #' @docType data
-#' @usage data(thomasA)
+#' @usage data(thomas01a)
 #' @format a \code{matrix} instance, containing counts for all stimulus-response combinations. Each row corresponds to a different stimulus presentation (in the order aa, ab, ba, bb) and each column in that row represents the frequency of each response (in the order aa, ab, ba, bb).
 #' @source Thomas, R. D. (2001). Characterizing perceptual interactions in face identification using multidimensional signal detection theory. In M.Wenger & J.T. Townsend (Eds.) Computational, geometric, and process perspectives on facial cognition: Contexts and challenges. Hillsdale, NJ: Erlbaum.
 #' @author Robin D. Thomas 
 NULL
 
-#' @name thomasB
-#' @title Face recognition confusion matrix for Observer B
+#' @name thomas01b
+#' @title 2x2 face recognition confusion matrix for Observer B
 #' @description This data set contains the results of a full-report face recognition experiment reported in Thomas (2001). For Observer B, the two channels are degree of eye separation and mouth width. 
 #' @docType data
-#' @usage data(thomasB)
+#' @usage data(thomas01b)
 #' @format a \code{matrix} instance, containing counts for all stimulus-response combinations. Each row corresponds to a different stimulus presentation (in the order aa, ab, ba, bb) and each column in that row represents the frequency of each response (in the order aa, ab, ba, bb).
 #' @source Thomas, R. D. (2001). Characterizing perceptual interactions in face identification using multidimensional signal detection theory. In M.Wenger & J.T. Townsend (Eds.) Computational, geometric, and process perspectives on facial cognition: Contexts and challenges. Hillsdale, NJ: Erlbaum.
 #' @author Robin D. Thomas 
@@ -32,7 +32,7 @@ NULL
 NULL
 
 #' @name silbert12
-#' @title Phoneme confusion matrix 
+#' @title 2x2 phoneme confusion matrix 
 #' @description Confusion matrix from speech perception experiment probing confusions between noise-masked tokens of English [p],[b],[f], and [v] (observer 3 in Ref.)
 #' @usage data(silbert12)
 #' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses
@@ -41,7 +41,7 @@ NULL
 NULL
 
 #' @name silbert09a
-#' @title Frequency vs. Duration confusion matrix
+#' @title 2x2 Frequency vs. Duration confusion matrix
 #' @description Confusion matrix from auditory perception experiment, in which listeners identified noise stimuli varying across frequency range and duration (Experiment 1, Observer 3 in Ref.)
 #' @usage data(silbert09a)
 #' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses
@@ -50,7 +50,7 @@ NULL
 NULL
 
 #' @name silbert09b
-#' @title Pitch vs. Timbre confusion matrix
+#' @title 2x2 Pitch vs. Timbre confusion matrix
 #' @description Confusion matrix from auditory perception experiment, in which listeners identified 13-component harmonic stimuli varying across fundamental frequency and location of spectral prominence (Experiment 2, Observer 7 in Ref..
 #' @usage data(silbert09b)
 #' @format A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses

@@ -2,7 +2,7 @@
 % Please edit documentation in R/grt-data.R
 \name{silbert12}
 \alias{silbert12}
-\title{Phoneme confusion matrix}
+\title{2x2 phoneme confusion matrix}
 \format{A \code{matrix} instance, containing counts for all stimulus-response combinations. Rows correspond to stimuli, columns to responses}
 \source{
 Silbert, N. H. (2012). Syllable structure and integration of voicing and manner of articulation information in labial consonant identification. Journal of the Acoustical Society of America, 131(5), 4076-4086.
