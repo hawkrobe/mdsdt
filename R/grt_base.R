@@ -406,13 +406,12 @@ two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5,
   if (is.null(ylab)) {
     ylab <- "B";
   }
-  # Plot Gaussian contours 
-  old_mar <- par()$mar;
+
   if(marginals){
     ex = .25
     xlb = ""
     ylb = ""
-    par(fig=c(ex,1,ex,1), mai=rep(.05,4),pty="m",xaxt="n",yaxt="n")
+    par(fig=c(ex,1,ex,1), mar=c(.05, .05, 1.25, 1.25),pty="m",xaxt="n",yaxt="n")
   }else{
     xlb = xlab
     ylb = ylab
@@ -424,13 +423,16 @@ two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5,
   # Plot decision bounds
   abline(h=0);
   abline(v=0);
+  # Plot Gaussian contours 
   for (i in 1:4) {
     cond = fit_params[[i]]
     cov <- matrix(data=c(1, cond[3], cond[3], 1), nrow = 2)
     mu = cond[1:2]
     par(new = TRUE)
     lines(ellipse(cov,centre=mu,level=level))
-    points(cond[1], cond[2], pch = '+')
+    if(plot.mu){
+      points(cond[1], cond[2], pch = '+')
+    }
     title(xlab = xlb, ylab = ylb)
   }
   
@@ -451,13 +453,12 @@ two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5,
   } else {
     newLabs = labs;
   }
-  text(xlims[1]+(xra * .1), ylims[1]+(yra * .1), newLabs[1])
-  text(xlims[1]+(xra * .1), ylims[2]-(yra * .1), newLabs[2])
-  text(xlims[2]-(xra * .1), ylims[1]+(yra * .1), newLabs[3])
-  text(xlims[2]-(xra * .1), ylims[2]-(yra * .1), newLabs[4])
+  text(xlims[1]+(xra * .15), ylims[1]+(yra * .1), newLabs[1])
+  text(xlims[1]+(xra * .15), ylims[2]-(yra * .1), newLabs[2])
+  text(xlims[2]-(xra * .15), ylims[1]+(yra * .1), newLabs[3])
+  text(xlims[2]-(xra * .15), ylims[2]-(yra * .1), newLabs[4])
 
   if(marginals){
-    print("plotting marginals");
     # compute marginals
     margx = margy = list(aa=NULL,ab=NULL,ba=NULL, bb=NULL);
     for (i in 1:4) {
@@ -467,22 +468,20 @@ two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5,
     }
     
     # Plot X marginals
-    par(fig=c(ex,1,0,ex), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+    par(fig=c(ex,1,0,ex), mar=c(.05, .05, 0.05, 1.25), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
     plot(x,margx$aa,type='l', lty=1, xlab = xlab, ylab = NULL);
     lines(x,margx$ab,type='l',lty=2);
     lines(x,margx$ba,type='l',lty=1);
     lines(x,margx$bb,type='l',lty=2);
     
     # Plot Y marginals
-    par(fig=c(0,ex,ex,1), mai = rep(.05,4), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
+    par(fig=c(0,ex,ex,1), mar=c(.05, .05, 1.25, 0.05), pty='m', xaxt = 'n', yaxt = 'n', new=TRUE);
     plot(margy$aa,y,type='l', lty=1, xlab = NULL, ylab = ylab);
     lines(margy$ab,y, type='l',lty=1);
     lines(margy$ba,y,type='l',lty=2);
     lines(margy$bb,y,type='l',lty=2);
   }
   
-  # Reset graphical par for later
-  par(mar = old_mar, fig = c(0,1,0,1));
 }
 
 isDefaultLabel <- function(label) {
