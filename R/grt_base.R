@@ -119,6 +119,7 @@ summary.grt <- function(object, ...) {
 #' @export
 plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main = "", plot.mu=T,...) {
 #                     connect=NULL, names=NULL, clty=1,ccol='Black',llty=1,lcol='Black', ...) {
+  origPar <- par(no.readonly=TRUE); 
   lim.sc=1
   connect=NULL;
   names=NULL;
@@ -169,6 +170,8 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main = ""
     # names changed 1.24.14
     if (!is.null(names)) text(mx,my,names)
   }
+  # Restore user's original graphics params
+  par(origPar);
 }
 
 #' Test report independence 
@@ -413,7 +416,7 @@ two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5,
   }else{
     xlb = xlab
     ylb = ylab
-    par(fig=c(.05,1,.05,1), mar=c(4,4,0.5,0.5),pty="m",xaxt="n",yaxt="n")
+    par(fig=c(0,1,0,1), mar=c(2.5,2.5,2.5,2.5),pty="m",xaxt="n",yaxt="n")
   }
   # need to take into account optional marginal plots for x/y labs?
   # currently assumes marginals will be plotted, so no x/y labs
