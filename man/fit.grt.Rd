@@ -4,7 +4,7 @@
 \alias{fit.grt}
 \title{Fit full Gaussian GRT model}
 \usage{
-fit.grt(freq, PS_x = FALSE, PS_y = FALSE, PI = "none")
+fit.grt(freq, PS_x = FALSE, PS_y = FALSE, PI = "none", method = NA)
 }
 \arguments{
 \item{freq}{Can be entered in two ways: 1) a 4x4 confusion matrix containing counts,
@@ -13,19 +13,22 @@ row/col order must be a_1b_1, a_1b_2, a_2b_1, a_2b_2.
 2) A three-way 'xtabs' table with the stimuli as the third index and the
 NxN possible responses as the first two indices.}
 
-\item{PS_x}{if TRUE, will fit model with assumption of perceptual separability on the x dimension}
+\item{PS_x}{if TRUE, will fit model with assumption of perceptual separability on the x dimension (FALSE by default)}
 
-\item{PS_y}{if TRUE, will fit model with assumption of perceptual separability on the y dimension}
+\item{PS_y}{if TRUE, will fit model with assumption of perceptual separability on the y dimension (FALSE by default)}
 
 \item{PI}{'none' by default, imposing no restrictions and fitting different correlations for all distributions.
 If 'same_rho', will constrain all distributions to have same correlation parameter.
 If 'all', will constain all distribution to have 0 correlation.}
+
+\item{method}{The optimization method used to fit the Gaussian model. Newton-Raphson gradient descent by default, but
+may also specify any method available in \code{\link[stats]{optim}}, e.g. "BFGS".}
 }
 \value{
 An S3 \code{grt} object
 }
 \description{
-Use Newton-Raphson gradient descent to fit the mean and covariance of a bivariate Gaussian distribution for each stimulus class, subject to given constraints.
+Fit the mean and covariance of a bivariate Gaussian distribution for each stimulus class, subject to given constraints.
 Standard case uses confusion matrix from a 2x2 full-report identification experiment, but will also work in designs with N levels of confidence associated with each dimension (e.g. in Wickens, 1992).
 }
 \examples{
