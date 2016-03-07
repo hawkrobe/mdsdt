@@ -113,8 +113,9 @@ summary.grt <- function(object, ...) {
 #' @param level number between 0 and 1 indicating which contour to plot (defaults to .5)
 #' @param xlab optional label for the x axis (defaults to NULL)
 #' @param ylab optional label for the y axis (defaults to NULL)
-#' @param marginals For 2x2 model, may set `marginal=T` to visualize marginals. This may be useful in interpreting assumptions of perceptual separability. (defaults to FALSE)
-#' @param main 
+#' @param marginals Boolean indicating whether or not to plot marginals (only available for 2x2 model; defaults to FALSE)
+#' @param main string to use as title of plot (defaults to empty string)
+#' @param plot.mu Boolean indicating whether or not to plot means (defaults to T)
 #' @param ... Arguments to be passed to methods, as in generic plot function
 #' @export
 plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main = "", plot.mu=T,...) {
