@@ -113,7 +113,7 @@ summary.grt <- function(object, ...) {
 #' @param level number between 0 and 1 indicating which contour to plot (defaults to .5)
 #' @param xlab optional label for the x axis (defaults to NULL)
 #' @param ylab optional label for the y axis (defaults to NULL)
-#' @param marginals Boolean specifying whether marginals should be plotted 
+#' @param marginals For 2x2 model, may specify whether marginals should be plotted (defaults to FALSE)
 #' @param main 
 #' @param ... Arguments to be passed to methods, as in generic plot function
 #' @export
@@ -147,8 +147,9 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main = ""
       names(dimnames(x$fit$obs)[2])
     if (is.null(ylab)) ylab <- if(is.null(x$fit)) 'B' else
       names(dimnames(x$fit$obs)[1])
+    
     # axes=F, box(which="plot") added 1.24.14
-    par(fig=c(0,1,0,1),mar=c(2.25,2.25,0.25,0.25))
+    par(fig=c(0,1,0,1),mar=c(2.5,2.5,2.5,2.5))
     plot(X,Y,type='n',main=main,xlab="",ylab="",axes=F,...)
     mtext(text=xlab,side=1,line=1)
     mtext(text=ylab,side=2,line=1)
