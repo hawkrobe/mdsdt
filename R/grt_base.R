@@ -113,7 +113,7 @@ summary.grt <- function(object, ...) {
 #' @param level number between 0 and 1 indicating which contour to plot (defaults to .5)
 #' @param xlab optional label for the x axis (defaults to NULL)
 #' @param ylab optional label for the y axis (defaults to NULL)
-#' @param marginals For 2x2 model, may specify whether marginals should be plotted (defaults to FALSE)
+#' @param marginals For 2x2 model, may set `marginal=T` to visualize marginals. This may be useful in interpreting assumptions of perceptual separability. (defaults to FALSE)
 #' @param main 
 #' @param ... Arguments to be passed to methods, as in generic plot function
 #' @export
@@ -418,9 +418,8 @@ two_by_two_plot.grt <- function(obj, xlab, ylab, level = .5,
     ylb = ylab
     par(fig=c(0,1,0,1), mar=c(2.5,2.5,2.5,2.5),pty="m",xaxt="n",yaxt="n")
   }
-  # need to take into account optional marginal plots for x/y labs?
-  # currently assumes marginals will be plotted, so no x/y labs
-  plot(0,0,type="n",xlim=xlims,ylim=ylims,xlab=xlb,ylab=ylb,main="",axes=F)
+  # Make plotting frame
+  plot(0,0,type="n",xlim=xlims,ylim=ylims,xlab=xlb,ylab=ylb,main=main,axes=F)
   box(which="plot",mai=rep(0,4))
   # Plot decision bounds
   abline(h=0);
