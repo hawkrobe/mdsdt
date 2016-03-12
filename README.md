@@ -1,7 +1,7 @@
 mdsdt
 =====
 
-[Available on CRAN](http://cran.r-project.org/web/packages/mdsdt/index.html).
+[Available on CRAN](https://cran.r-project.org/package=mdsdt).
 
 An R package for multi-dimensional signal detection theory, also known as GRT -- General Recognition Theory. 
 
