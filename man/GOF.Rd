@@ -8,7 +8,6 @@ GOF(grtMod, teststat = "X2", observed = NULL)
 }
 \arguments{
 \item{grtMod}{a \code{grt} object}
-
 \item{teststat}{a string indicating which statistic to use in the test.
 May be one of the following:
 \itemize{
@@ -17,7 +16,6 @@ May be one of the following:
 \item{'AIC'}{for Akaike information criterion score}
 \item{'AIC.c'}{for the AIC with finite sample size correction}
 \item{'BIC'}{for Bayesian information criterion score}}}
-
 \item{observed}{optional, to provide a matrix of observed frequencies if no fit conducted.}
 }
 \description{
