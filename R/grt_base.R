@@ -788,13 +788,13 @@ parameter.map <- function(bb){
 
 
 # Estimated parameters
-coef.grt <- function(bb, ...)
-  if (is.null(ff <- bb$fit)) NULL else ff$estimate
+coef.grt <- function(object, ...)
+  if (is.null(ff <- object$fit)) NULL else ff$estimate
 
 
 # Covariance matrix of parameters
-vcov.grt <- function(bb, ...){
-  if (is.null(ff <- bb$fit)) return(NULL)
+vcov.grt <- function(object, ...){
+  if (is.null(ff <- object$fit)) return(NULL)
   vcv <- solve(-ff$expd2)
   rownames(vcv) <- colnames(vcv) <- names(ff$estimate)
   vcv
