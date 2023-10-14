@@ -1,12 +1,12 @@
 Package: mdsdt
 Version: 1.1
-Date: 2015-08-31
+Date: 2023-10-14
 Title: Functions for Analysis of Data with General Recognition Theory
 Author: Robert X.D. Hawkins <rxdh@stanford.edu>, Joe Houpt
     <joseph.houpt@wright.edu>, Noah Silbert <noahpoah@gmail.com>, Leslie
     Blaha <Leslie.Blaha@wpafb.af.mil>, Thomas D. Wickens
     <twickens@socrates.berkeley.edu>
-Maintainer: Robert X.D. Hawkins <rxdh@stanford.edu>
+Maintainer: Joe Houpt <joseph.houpt@utsa.edu>
 Depends:
     R (>= 1.8.0), ellipse, mnormt, polycor
 Description: Tools associated with General
