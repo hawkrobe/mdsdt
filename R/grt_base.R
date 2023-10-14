@@ -47,8 +47,8 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' @return An S3 \code{grt} object
 #' @examples 
 #' # Fit unconstrained model
-#' data(thomasB); 
-#' grt_obj <- fit.grt(thomasB);
+#' data(thomas01b); 
+#' grt_obj <- fit.grt(thomas01b);
 #' 
 #' # Use standard S3 generics to examine
 #' print(grt_obj);
@@ -56,7 +56,7 @@ grt <- function (dists, fit=NULL, rcuts = 0, ccuts = 0) {
 #' plot(grt_obj);
 #' 
 #' # Fit model with assumption of perceptual separability on both dimensions
-#' grt_obj_PS <- fit.grt(thomasB, PS_x = TRUE, PS_y = TRUE);
+#' grt_obj_PS <- fit.grt(thomas01b, PS_x = TRUE, PS_y = TRUE);
 #' summary(grt_obj_PS);
 #' plot(grt_obj_PS);
 #' 
@@ -183,8 +183,8 @@ plot.grt <- function(x, level = .5, xlab=NULL, ylab=NULL, marginals=F, main = ""
 #' @return data frame containing z-scores and p-values for all four tests
 #' @details If p value is sufficiently low, we're justified in rejecting the null hypothesis of sampling within that factor. p values come from a chi-squared test on the confusion matrix, as explaned in a footnote of Thomas (2001).
 #' @examples
-#' data(thomasA)
-#' riTest(thomasA)
+#' data(thomas01a)
+#' riTest(thomas01a)
 #' @source
 #' Ashby, F. G., & Townsend, J. T. (1986). Varieties of perceptual independence. Psychological review, 93(2), 154.
 #'
@@ -223,8 +223,8 @@ riTest <- function(x) {
 #' 
 #' The estimator is derived in a footnote of Thomas (2001).
 #' @examples
-#' data(thomasA)
-#' mriTest(thomasA)
+#' data(thomas01a)
+#' mriTest(thomas01a)
 #' @source
 #' Ashby, F. G., & Townsend, J. T. (1986). Varieties of perceptual independence. Psychological review, 93(2), 154.
 #'
@@ -507,9 +507,9 @@ isDefaultLabel <- function(label) {
 #' \item{'BIC'}{for Bayesian information criterion score}}
 #' @param observed optional, to provide a matrix of observed frequencies if no fit conducted.
 #' @examples 
-#' data(thomasA)
-#' fit1 <- fit.grt(thomasA)
-#' fit2 <- fit.grt(thomasA, PI = 'same_rho')
+#' data(thomas01a)
+#' fit1 <- fit.grt(thomas01a)
+#' fit2 <- fit.grt(thomas01a, PI = 'same_rho')
 #' 
 #' # Take the model with the lower AIC
 #' GOF(fit1, teststat = 'AIC')
@@ -788,12 +788,12 @@ parameter.map <- function(bb){
 
 
 # Estimated parameters
-coef.grt <- function(bb)
+coef.grt <- function(bb, ...)
   if (is.null(ff <- bb$fit)) NULL else ff$estimate
 
 
 # Covariance matrix of parameters
-vcov.grt <- function(bb){
+vcov.grt <- function(bb, ...){
   if (is.null(ff <- bb$fit)) return(NULL)
   vcv <- solve(-ff$expd2)
   rownames(vcv) <- colnames(vcv) <- names(ff$estimate)
@@ -847,7 +847,7 @@ fitted.grt <- function(bb)
 
 
 
-print.bsdGOF <- function(gof){
+print_bsdGOF <- function(gof){
   df <- attr(gof,'df')
   cat(names(gof),'(',df,') = ',gof,', p = ',
       round(pchisq(gof,df,lower.tail=F),5), '\n',sep='')
@@ -943,7 +943,7 @@ test.parameters <- function(bb,set='means'){
             class=c('bsd.test','matrix'))
 }
 
-print.bsd.test <- function(mx,digits=3){
+print_bsd_test <- function(mx,digits=3){
   class(mx) <- 'matrix'
   print(round(mx,digits))
 }

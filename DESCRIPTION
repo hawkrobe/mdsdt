@@ -1,5 +1,5 @@
 Package: mdsdt
-Version: 1.1
+Version: 1.3
 Date: 2023-10-14
 Title: Functions for Analysis of Data with General Recognition Theory
 Author: Robert X.D. Hawkins <rxdh@stanford.edu>, Joe Houpt
@@ -8,7 +8,7 @@ Author: Robert X.D. Hawkins <rxdh@stanford.edu>, Joe Houpt
     <twickens@socrates.berkeley.edu>
 Maintainer: Joe Houpt <joseph.houpt@utsa.edu>
 Depends:
-    R (>= 1.8.0), ellipse, mnormt, polycor
+    R (>= 3.5.0), ellipse, mnormt, polycor
 Description: Tools associated with General
     Recognition Theory (Townsend & Ashby, 1986), including Gaussian model fitting of 4x4 and more
     general confusion matrices, associated plotting and model comparison tools,
